@@ -1,4 +1,4 @@
-package dev.saberlabs.myspringportfolio.auth;
+package dev.saberlabs.myspringportfolio.user;
 
 import jakarta.persistence.*;
 import lombok.*;

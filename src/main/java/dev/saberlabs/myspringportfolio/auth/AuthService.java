@@ -1,6 +1,8 @@
 package dev.saberlabs.myspringportfolio.auth;
 
 
+import dev.saberlabs.myspringportfolio.user.UserEntity;
+import dev.saberlabs.myspringportfolio.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

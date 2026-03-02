@@ -1,4 +1,4 @@
-package dev.saberlabs.myspringportfolio.auth;
+package dev.saberlabs.myspringportfolio.user;
 
 import lombok.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
