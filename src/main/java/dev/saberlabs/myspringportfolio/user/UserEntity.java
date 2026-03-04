@@ -18,15 +18,21 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="users")
+
 public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NonNull
+    @Column(unique = true)
     private String username;
+
     @NonNull
+    @Column(unique = true)
     private String email;
+
     @NonNull
     private String password;
 
@@ -74,4 +80,6 @@ public class UserEntity implements UserDetails {
     private LocalDate createdAt;
     @UpdateTimestamp
     private LocalDate updatedAt;
+
+
 }

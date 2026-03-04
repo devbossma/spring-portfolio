@@ -22,7 +22,7 @@ public class AuthController {
 
     @GetMapping("/login")
     public String login() {
-        return "/auth/login";
+        return "auth/login";
     }
 
     // Spring Security will handle the authentication process, so no PostMapping needed for User's authentication.
@@ -30,7 +30,7 @@ public class AuthController {
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("registrationRequest", new RegistrationRequest());
-        return "/auth/register";
+        return "auth/register";
     }
 
     @PostMapping("/register")
