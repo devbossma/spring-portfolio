@@ -38,14 +38,19 @@ public class UserEntity implements UserDetails {
 
     @Column(name = "active")
     private boolean isActive = true;
+
     @Column(name= "enabled")
     private boolean isEnabled = true;
+
     @Column(name= "credentials_non_expired")
     private boolean isCredentialsNonExpired = true;
+
     @Column(name= "locked")
     private boolean isAccountNonLocked = true;
+
     @Column(name= "account_non_expired")
     private boolean isAccountNonExpired = true;
+
     private String role; // "USER", "ADMIN"
 
     @Override

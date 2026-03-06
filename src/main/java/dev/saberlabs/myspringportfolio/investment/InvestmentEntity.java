@@ -1,6 +1,7 @@
 package dev.saberlabs.myspringportfolio.investment;
 
 
+import dev.saberlabs.myspringportfolio.sector.SectorEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,17 +22,25 @@ public class InvestmentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "portfolio_id", nullable = false)
     private Long portfolioId;
 
+    @OneToOne
+    @JoinColumn(name = "sector_id")
+    private SectorEntity sector;
 
+    @Column(name = "status")
+    private InvestmentStatus status = InvestmentStatus.PENDING;
 
     private String name;
-    private String sector;
-    private Double amountInvested;
-    private Double purchasePrice;
+    private Double initialValue;
     private Double currentValue;
+    private Integer quantity;
+    private Double investedAmount;
+    private Double profitLoss;
+    private Double exitValue;
+
 
     // Timestamps
     @CreationTimestamp

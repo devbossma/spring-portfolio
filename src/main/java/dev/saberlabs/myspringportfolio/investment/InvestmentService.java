@@ -29,7 +29,7 @@ public class InvestmentService {
     }
 
     public Double CalculateProfitLoss(InvestmentEntity investment) {
-        return (investment.getCurrentValue() - investment.getPurchasePrice()) ;
+        return (investment.getCurrentValue() - investment.getInitialValue()) * investment.getQuantity();
     }
 
     @Transactional
