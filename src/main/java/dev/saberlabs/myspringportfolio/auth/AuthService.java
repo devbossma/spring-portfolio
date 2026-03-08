@@ -1,6 +1,8 @@
 package dev.saberlabs.myspringportfolio.auth;
 
 
+import dev.saberlabs.myspringportfolio.fund.FundEntity;
+import dev.saberlabs.myspringportfolio.portfolio.PortfolioEntity;
 import dev.saberlabs.myspringportfolio.user.UserEntity;
 import dev.saberlabs.myspringportfolio.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +44,12 @@ public class AuthService {
         user.setUsername(username);
         user.setPassword(Objects.requireNonNull(passwordEncoder.encode(password)));
         user.setRole("USER");
+
+        // create a new portfolio for the user
+        PortfolioEntity portfolio = new PortfolioEntity();
+        FundEntity fund = new FundEntity();
+        portfolio.setFund(fund);
+        user.setPortfolio(portfolio);
         userRepository.save(user);
         return user;
     }

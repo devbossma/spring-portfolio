@@ -1,5 +1,7 @@
 package dev.saberlabs.myspringportfolio.user;
 
+import dev.saberlabs.myspringportfolio.investment.InvestmentEntity;
+import dev.saberlabs.myspringportfolio.portfolio.PortfolioEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -8,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.net.ssl.SSLSession;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +21,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="users")
-
 public class UserEntity implements UserDetails {
 
     @Id
@@ -30,11 +32,16 @@ public class UserEntity implements UserDetails {
     private String username;
 
     @NonNull
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @NonNull
     private String password;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "portfolio_id", referencedColumnName = "id", nullable = false)
+    private PortfolioEntity portfolio;
+
 
     @Column(name = "active")
     private boolean isActive = true;
@@ -85,6 +92,7 @@ public class UserEntity implements UserDetails {
     private LocalDate createdAt;
     @UpdateTimestamp
     private LocalDate updatedAt;
+
 
 
 }
