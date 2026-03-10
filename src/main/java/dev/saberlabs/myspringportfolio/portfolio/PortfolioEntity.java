@@ -8,8 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.jspecify.annotations.NonNull;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,18 @@ public class PortfolioEntity {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn( name = "fund_id", referencedColumnName = "id", nullable = false)
     private FundEntity fund;
+
+    @Column(precision = 19, scale = 2)
+    private BigDecimal totalInvested = BigDecimal.ZERO;
+
+    @Enumerated(EnumType.STRING)
+    private PortfolioStatus status = PortfolioStatus.ACTIVE;
+
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @CreationTimestamp
+    private LocalDateTime updatedAt;
 
 
 

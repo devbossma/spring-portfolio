@@ -1,7 +1,9 @@
 package dev.saberlabs.myspringportfolio.user;
 
 import dev.saberlabs.myspringportfolio.investment.InvestmentEntity;
+import dev.saberlabs.myspringportfolio.notification.NotificationEntity;
 import dev.saberlabs.myspringportfolio.portfolio.PortfolioEntity;
+import dev.saberlabs.myspringportfolio.transaction.TransactionEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -12,15 +14,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.net.ssl.SSLSession;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-@Data
-@Entity
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="users")
+@Entity
+@Table(name = "users")
 public class UserEntity implements UserDetails {
 
     @Id
@@ -58,8 +62,14 @@ public class UserEntity implements UserDetails {
     @Column(name= "account_non_expired")
     private boolean isAccountNonExpired = true;
 
-    private String role; // "USER", "ADMIN"
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NotificationEntity> notifications;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TransactionEntity> transactions;
+
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
     @Override
     @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -89,9 +99,9 @@ public class UserEntity implements UserDetails {
 
     // Timestamps for tracking creation and updates
     @CreationTimestamp
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     @UpdateTimestamp
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
 
 

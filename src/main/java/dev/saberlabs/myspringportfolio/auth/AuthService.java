@@ -25,7 +25,7 @@ public class AuthService {
     }
 
     @Transactional
-    public UserEntity registerUser(RegistrationRequest request) {
+    public void registerUser(RegistrationRequest request) {
         String email =  Objects.requireNonNull(request.getEmail());
         String username = Objects.requireNonNull(request.getUsername());
         String password = Objects.requireNonNull(request.getPassword());
@@ -43,7 +43,6 @@ public class AuthService {
         user.setEmail(email);
         user.setUsername(username);
         user.setPassword(Objects.requireNonNull(passwordEncoder.encode(password)));
-        user.setRole("USER");
 
         // create a new portfolio for the user
         PortfolioEntity portfolio = new PortfolioEntity();
@@ -51,6 +50,5 @@ public class AuthService {
         portfolio.setFund(fund);
         user.setPortfolio(portfolio);
         userRepository.save(user);
-        return user;
     }
 }

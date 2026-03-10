@@ -1,11 +1,18 @@
 package dev.saberlabs.myspringportfolio.fund;
 
 import dev.saberlabs.myspringportfolio.portfolio.PortfolioEntity;
+import dev.saberlabs.myspringportfolio.transaction.FundTransactionEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -17,10 +24,28 @@ public class FundEntity {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
-    private Double balance = 10_000_000.00;
-    private Double investedAmount = 0.00;
-    private Double profitLoss = 0.00;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal totalCapital = BigDecimal.valueOf(10_0000_000L);
+
+    @Column(precision = 19, scale = 2)
+    private BigDecimal deployedCapital = BigDecimal.ZERO;
+
+    @Column(precision = 19, scale = 2)
+    private BigDecimal profitLoss = BigDecimal.ZERO;
+
+    @Transient
+    public BigDecimal getDryPowder() {
+        return totalCapital.subtract(deployedCapital);
+    }
 
     @OneToOne(mappedBy = "fund", cascade = CascadeType.ALL, orphanRemoval = true)
     private PortfolioEntity portfolio;
+
+    @OneToMany(mappedBy = "fund", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FundTransactionEntity> transactions = new ArrayList<>();
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @CreationTimestamp
+    private LocalDateTime updatedAt;
 }
