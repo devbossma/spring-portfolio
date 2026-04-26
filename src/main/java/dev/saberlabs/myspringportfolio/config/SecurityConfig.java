@@ -22,13 +22,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers("/auth/**", "/css/**", "/js/**").permitAll()
+                                .requestMatchers("/", "/auth/**", "/css/**", "/js/**").permitAll()
                                 .anyRequest().authenticated()
 
                 )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutSuccessUrl("/?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                 )

@@ -70,10 +70,21 @@ public class UserEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
     @Override
     @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority userAuthority = new SimpleGrantedAuthority("ROLE_" + this.role);
+        SimpleGrantedAuthority userAuthority = new SimpleGrantedAuthority("ROLE_" + this.role.name());
         return List.of(userAuthority);
     }
 
@@ -102,7 +113,4 @@ public class UserEntity implements UserDetails {
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-
-
 }
