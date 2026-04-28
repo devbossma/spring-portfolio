@@ -1,13 +1,18 @@
 package dev.saberlabs.myspringportfolio.investment;
 
-import dev.saberlabs.myspringportfolio.fund.FundEntity;
-import dev.saberlabs.myspringportfolio.portfolio.PortfolioEntity;
-import dev.saberlabs.myspringportfolio.user.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.util.Collection;
 
 @Repository
 public interface InvestmentRepository extends JpaRepository<InvestmentEntity, Long> {
+
+    @Query("SELECT COALESCE(SUM(i.investedAmount), 0) FROM InvestmentEntity i WHERE i.portfolio.id = :portfolioId AND i.status NOT IN :excludedStatuses")
+    BigDecimal sumDeployedAmountByPortfolioId(@Param("portfolioId") Long portfolioId,
+                                              @Param("excludedStatuses") Collection<InvestmentStatus> excludedStatuses);
 
 }

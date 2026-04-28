@@ -5,12 +5,14 @@ import dev.saberlabs.myspringportfolio.fund.FundEntity;
 import dev.saberlabs.myspringportfolio.fund.FundRepository;
 import dev.saberlabs.myspringportfolio.investment.InvestmentEntity;
 import dev.saberlabs.myspringportfolio.investment.InvestmentRepository;
+import dev.saberlabs.myspringportfolio.investment.InvestmentStatus;
 import dev.saberlabs.myspringportfolio.user.UserEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class PortfolioService {
@@ -26,7 +28,13 @@ public class PortfolioService {
     }
 
     public PortfolioEntity getPortfolioByUser(UserEntity user) {
-        return user.getPortfolio();
+        return portfolioRepository.findById(user.getPortfolio().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Portfolio not found"));
+    }
+
+    public PortfolioEntity getPortfolioById(Long id) {
+        return portfolioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Portfolio not found"));
     }
 
     public List<InvestmentEntity> getInvestmentsByPortfolio(PortfolioEntity portfolio) {
@@ -39,15 +47,18 @@ public class PortfolioService {
 
     @Transactional
     public void updatePortfolioTotals(PortfolioEntity portfolio) {
-        BigDecimal totalInvested = portfolio.getInvestments().stream()
-                .map(InvestmentEntity::getInvestedAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        portfolio.setTotalInvested(totalInvested);
+        // Use a direct query to bypass the Hibernate session cache; exclude exited/written-off (capital returned to fund)
+        BigDecimal totalInvested = investmentRepository.sumDeployedAmountByPortfolioId(
+                portfolio.getId(),
+                Set.of(InvestmentStatus.EXITED, InvestmentStatus.WRITTEN_OFF));
 
-        BigDecimal deployedCapital = totalInvested;
-        portfolio.getFund().setDeployedCapital(deployedCapital);
+        PortfolioEntity refreshedPortfolio = portfolioRepository.findById(portfolio.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Portfolio not found"));
 
-        portfolioRepository.save(portfolio);
-        fundRepository.save(portfolio.getFund());
+        refreshedPortfolio.setTotalInvested(totalInvested);
+        refreshedPortfolio.getFund().setDeployedCapital(totalInvested);
+
+        portfolioRepository.save(refreshedPortfolio);
+        fundRepository.save(refreshedPortfolio.getFund());
     }
 }

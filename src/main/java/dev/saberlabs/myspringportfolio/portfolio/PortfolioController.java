@@ -23,7 +23,7 @@ public class PortfolioController {
 
     @GetMapping("/portfolio")
     public String portfolio(@AuthenticationPrincipal UserEntity currentUser, Model model) {
-        var portfolio = currentUser.getPortfolio();
+        var portfolio = portfolioService.getPortfolioByUser(currentUser);
         model.addAttribute("portfolio", portfolio);
         model.addAttribute("fund", portfolio.getFund());
         model.addAttribute("investments", portfolio.getInvestments());

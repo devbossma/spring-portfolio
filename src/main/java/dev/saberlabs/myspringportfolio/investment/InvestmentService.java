@@ -1,8 +1,14 @@
 package dev.saberlabs.myspringportfolio.investment;
 
 import dev.saberlabs.myspringportfolio.fund.FundEntity;
-import dev.saberlabs.myspringportfolio.fund.FundRepository;
+import dev.saberlabs.myspringportfolio.fund.FundService;
+import dev.saberlabs.myspringportfolio.portfolio.PortfolioEntity;
 import dev.saberlabs.myspringportfolio.portfolio.PortfolioService;
+import dev.saberlabs.myspringportfolio.transaction.FundTransactionRepository;
+import dev.saberlabs.myspringportfolio.transaction.InvestmentTransactionEntity;
+import dev.saberlabs.myspringportfolio.transaction.InvestmentTransactionRepository;
+import dev.saberlabs.myspringportfolio.transaction.InvestmentTransactionType;
+import dev.saberlabs.myspringportfolio.user.UserEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +19,18 @@ import java.util.List;
 public class InvestmentService {
 
     private final InvestmentRepository investmentRepository;
-    private final FundRepository fundRepository;
     private final PortfolioService portfolioService;
+    private final FundService fundService;
+    private final InvestmentTransactionRepository investmentTransactionRepository;
 
-    public InvestmentService(InvestmentRepository investmentRepository, FundRepository fundRepository, PortfolioService portfolioService) {
+    public InvestmentService(InvestmentRepository investmentRepository,
+                             PortfolioService portfolioService,
+                             FundService fundService,
+                             InvestmentTransactionRepository investmentTransactionRepository) {
         this.investmentRepository = investmentRepository;
-        this.fundRepository = fundRepository;
         this.portfolioService = portfolioService;
+        this.fundService = fundService;
+        this.investmentTransactionRepository = investmentTransactionRepository;
     }
 
     public List<InvestmentEntity> listInvestmentsByPortfolioId(Long portfolioId) {
@@ -29,34 +40,39 @@ public class InvestmentService {
     }
 
     @Transactional
-    public void addInvestment(InvestmentEntity investment) {
-        // Calculate investedAmount if not set
+    public void addInvestment(InvestmentEntity investment, UserEntity user) {
         if (investment.getInvestedAmount() == null) {
-            investment.setInvestedAmount(investment.getPricePerUnit().multiply(java.math.BigDecimal.valueOf(investment.getQuantity())));
+            investment.setInvestedAmount(
+                    investment.getPricePerUnit().multiply(BigDecimal.valueOf(investment.getQuantity())));
         }
 
-        // Set currentValue to pricePerUnit if not provided (initially they should be the same)
+        // Reload portfolio and fund from DB to get accurate balance (session object may be stale)
+        PortfolioEntity freshPortfolio = portfolioService.getPortfolioById(investment.getPortfolio().getId());
+        FundEntity fund = freshPortfolio.getFund();
+        BigDecimal dryPowder = fund.getDryPowder();
+        if (dryPowder.compareTo(investment.getInvestedAmount()) < 0) {
+            throw new IllegalArgumentException(
+                    "Insufficient funds. Available: $" + dryPowder + ", Required: $" + investment.getInvestedAmount());
+        }
+
         if (investment.getCurrentValue() == null) {
             investment.setCurrentValue(investment.getPricePerUnit());
         }
 
-        // Verify sufficient balance
-        BigDecimal dryPowder = investment.getPortfolio().getFund().getDryPowder();
-        if (dryPowder.compareTo(investment.getInvestedAmount()) < 0) {
-            throw new IllegalArgumentException("Insufficient funds. Available balance: $" + dryPowder + ", Required: $" + investment.getInvestedAmount());
-        }
-
         investmentRepository.save(investment);
 
-        // Update portfolio totals (this will deduct from balance)
-        portfolioService.updatePortfolioTotals(investment.getPortfolio());
-    }
+        // Record BUY transaction
+        investmentTransactionRepository.save(InvestmentTransactionEntity.builder()
+                .amount(investment.getInvestedAmount())
+                .user(user)
+                .type(InvestmentTransactionType.BUY)
+                .investment(investment)
+                .pricePerUnit(investment.getPricePerUnit())
+                .quantity(investment.getQuantity())
+                .notes("Investment purchase")
+                .build());
 
-    @Transactional
-    public void updateInvestmentName(Long id, String name) {
-        InvestmentEntity investment = investmentRepository.findById(id).orElseThrow();
-        investment.setName(name);
-        investmentRepository.save(investment);
+        portfolioService.updatePortfolioTotals(freshPortfolio);
     }
 
     @Transactional
@@ -64,20 +80,34 @@ public class InvestmentService {
         InvestmentEntity investment = investmentRepository.findById(id).orElseThrow();
         investment.setCurrentValue(currentValue);
         investmentRepository.save(investment);
-
-        // Update portfolio totals since current value affects calculations
         portfolioService.updatePortfolioTotals(investment.getPortfolio());
     }
 
     @Transactional
-    public void exitInvestment(Long id, BigDecimal exitValue) {
+    public void exitInvestment(Long id, BigDecimal exitValue, UserEntity user) {
         InvestmentEntity investment = investmentRepository.findById(id).orElseThrow();
         investment.setStatus(InvestmentStatus.EXITED);
         investment.setExitValue(exitValue);
         investment.setExitAt(java.time.LocalDateTime.now());
         investmentRepository.save(investment);
 
-        // Update portfolio totals
+        // Record SELL investment transaction
+        investmentTransactionRepository.save(InvestmentTransactionEntity.builder()
+                .amount(exitValue)
+                .user(user)
+                .type(InvestmentTransactionType.SELL)
+                .investment(investment)
+                .pricePerUnit(exitValue.divide(BigDecimal.valueOf(investment.getQuantity()), 2, java.math.RoundingMode.HALF_UP))
+                .quantity(investment.getQuantity())
+                .notes("Investment exit")
+                .build());
+
+        // Return exit proceeds to the fund and record a DEPOSIT fund transaction
+        FundEntity fund = investment.getPortfolio().getFund();
+        fundService.recordFundDeposit(fund, exitValue, user,
+                "Exit proceeds from: " + investment.getName());
+
+        // Recalculate deployedCapital (exited investment is now excluded)
         portfolioService.updatePortfolioTotals(investment.getPortfolio());
     }
 
@@ -88,7 +118,6 @@ public class InvestmentService {
     @Transactional
     public void updateInvestment(InvestmentEntity investment) {
         investmentRepository.save(investment);
-        // Update portfolio totals since investment values may have changed
         portfolioService.updatePortfolioTotals(investment.getPortfolio());
     }
 }
