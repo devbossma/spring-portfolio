@@ -1,121 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF--8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vestio · secure login</title>
-    <!-- Bootstrap 5 (grid & utilities only, minimal interference) -->
+    <title>Sign In – My Portfolio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Inter font – clean, financial-grade readability -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <!-- Feather icons (lightweight, professional) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/auth.css">
 </head>
 <body>
+
 <div class="auth-card">
     <div class="row g-0">
-        <!-- left side: brand / market (purely visual) -->
+
+        <!-- Brand panel -->
         <div class="col-md-5 brand-panel">
             <div class="brand-icon">
                 <i data-feather="bar-chart-2" width="28" height="28" stroke="#7eb0ff"></i>
             </div>
-            <div class="brand-title">My $pring<br>Portfolio</div>
-            <div class="brand-sub">track stocks & coins · institutional grade</div>
+            <div class="brand-title">My Portfolio</div>
+            <div class="brand-sub">investment tracking · fund management</div>
 
-            <!-- market preview (no functional form elements, just context) -->
             <div class="market-ticker">
-                <div class="ticker-item"><span class="ticker-symbol">BTC</span><span class="ticker-price">$63.2k</span><span class="ticker-change positive">+2.1%</span></div>
-                <div class="ticker-item"><span class="ticker-symbol">ETH</span><span class="ticker-price">$3,012</span><span class="ticker-change negative">-0.4%</span></div>
-                <div class="ticker-item"><span class="ticker-symbol">AAPL</span><span class="ticker-price">$187</span><span class="ticker-change positive">+0.7%</span></div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">CAPITAL</span>
+                    <span class="ticker-change positive">managed</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">P&amp;L</span>
+                    <span class="ticker-change positive">tracked</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-symbol">EXITS</span>
+                    <span class="ticker-change positive">recorded</span>
+                </div>
             </div>
 
-            <!-- mini portfolio preview (decorative) -->
             <div style="margin-top: 1.5rem;">
-                <div style="color:#688dc0; font-size:0.7rem; letter-spacing:1px;">YOUR HOLDINGS</div>
-                <div class="holding-row"><span class="asset-name">NVIDIA</span><span class="asset-value">+124%</span></div>
-                <div class="holding-row"><span class="asset-name">Bitcoin</span><span class="asset-value">+8.3%</span></div>
-                <div class="holding-row"><span class="asset-name">Ethereum</span><span class="asset-value">-2.1%</span></div>
+                <div style="color:#688dc0; font-size:0.7rem; letter-spacing:1px; margin-bottom: 0.5rem;">WHAT YOU GET</div>
+                <div class="holding-row"><span class="asset-name">Fund Tracking</span><span class="asset-value">&#10003;</span></div>
+                <div class="holding-row"><span class="asset-name">Investment CRUD</span><span class="asset-value">&#10003;</span></div>
+                <div class="holding-row"><span class="asset-name">Transaction History</span><span class="asset-value">&#10003;</span></div>
             </div>
         </div>
 
-        <!-- right side: login + register forms (YOUR EXACT STRUCTURE) -->
+        <!-- Form panel -->
         <div class="col-md-7 form-panel">
-            <!-- tab switcher (only affects visibility, doesn't rename fields) -->
+
             <div class="form-nav">
-                <button type="button" id="loginTabBtn" class="active">sign in</button>
-                <form method="get" th:action="@{/auth/register}">
-                    <button type="submit" id="registerTabBtn">create account</button>
-                </form>
-            </div>
-            <!-- ===== LOGIN FORM – your exact IDs/names ===== -->
-            <div id="loginForm" class="form-container">
-                <form  class="form-signup" method="post" th:action="@{/auth/login}">
-                    <div class="input-group-custom">
-
-                        <i data-feather="user"></i>
-                        <input type="text" id="username" name="username" placeholder="User Name" required>
-                    </div>
-
-                    <!-- password field (critical: password) -->
-                    <div class="input-group-custom">
-                        <i data-feather="lock"></i>
-                        <input type="password" id="password" name="password" placeholder="··············" required autocomplete >
-                    </div>
-
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" id="rememberMe" name="rememberMe" checked>
-                        <label for="rememberMe">remember this device</label>
-                    </div>
-                    <!-- submit button (preserves functionality) -->
-                    <button type="submit" class="btn-auth">
-                        <i data-feather="log-in" width="18" height="18"></i> access portfolio
-                    </button>
-                </form>
+                <button type="button" class="active">sign in</button>
+                <a href="/auth/register" style="background:transparent; border:none; color:#97b9e0; font-weight:500; font-size:1.1rem; padding:0.25rem 0.2rem; text-decoration:none; border-bottom: 3px solid transparent;">create account</a>
             </div>
 
-            <!-- ===== REGISTER FORM – your exact IDs/names ===== -->
-            <div id="registerForm" class="form-container">
-                <form action="#" method="post"> <!-- your spring boot register endpoint -->
-                    <!-- registerEmail (critical) -->
-                    <div class="input-group-custom">
-                        <i data-feather="mail"></i>
-                        <input type="email" id="registerEmail" name="registerEmail" placeholder="your@email.com" required>
-                    </div>
+            <!-- Success message from registration -->
+            <div th:if="${successMessage}" style="background:#0d2e1a; border:1px solid #1a5c35; border-radius:12px; padding:0.9rem 1.2rem; margin-bottom:1.5rem; color:#4ebf8a; font-size:0.9rem;">
+                <i data-feather="check-circle" width="16" height="16" style="margin-right:6px;"></i>
+                <span th:text="${successMessage}"></span>
+            </div>
 
-                    <!-- registerPassword (critical) -->
-                    <div class="input-group-custom">
-                        <i data-feather="lock"></i>
-                        <input type="password" id="registerPassword" name="registerPassword" placeholder="create password" required>
-                    </div>
+            <!-- Spring Security login error -->
+            <div th:if="${param.error}" style="background:#2e0d0d; border:1px solid #5c1a1a; border-radius:12px; padding:0.9rem 1.2rem; margin-bottom:1.5rem; color:#f56565; font-size:0.9rem;">
+                <i data-feather="alert-circle" width="16" height="16" style="margin-right:6px;"></i>
+                Invalid username or password.
+            </div>
 
-                    <!-- confirmPassword (critical) -->
-                    <div class="input-group-custom">
-                        <i data-feather="check-circle"></i>
-                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="confirm password" required>
-                    </div>
+            <form method="post" th:action="@{/auth/login}">
+                <div class="input-group-custom">
+                    <i data-feather="user"></i>
+                    <input type="text" id="username" name="username" placeholder="Username" required autocomplete="username">
+                </div>
 
-                    <!-- acceptTerms checkbox (critical: acceptTerms) -->
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" id="acceptTerms" name="acceptTerms">
-                        <label for="acceptTerms">I agree to the terms & privacy policy</label>
-                    </div>
+                <div class="input-group-custom">
+                    <i data-feather="lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Password" required autocomplete="current-password">
+                </div>
 
-                    <!-- register error placeholder (critical: registerError) -->
-                    <div id="registerError" class="error-message"></div>
+                <button type="submit" class="btn-auth">
+                    <i data-feather="log-in" width="18" height="18"></i>
+                    Access Portfolio
+                </button>
+            </form>
 
-                    <button type="submit" class="btn-auth">
-                        <i data-feather="user-plus" width="18" height="18"></i> create account
-                    </button>
-                </form>
+            <div class="security-note" style="margin-top: 1.5rem;">
+                <span><i data-feather="shield" width="13" height="13"></i> secured session</span>
+                <span><i data-feather="lock" width="13" height="13"></i> encrypted</span>
             </div>
         </div>
+
     </div>
 </div>
-<!-- Bootstrap bundle (optional) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>feather.replace();</script>
 </body>
 </html>

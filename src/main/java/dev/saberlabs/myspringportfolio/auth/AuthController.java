@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.logging.Logger;
-
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
@@ -25,8 +23,6 @@ public class AuthController {
         return "auth/login";
     }
 
-    // Spring Security will handle the authentication process, so no PostMapping needed for User's authentication.
-
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("registrationRequest", new RegistrationRequest());
@@ -37,19 +33,15 @@ public class AuthController {
     public String handleRegister(
             @ModelAttribute("registrationRequest") RegistrationRequest request,
             Model model,
-            RedirectAttributes redirectAttributes
-    ) {
-
-        this.authService.registerUser( request);
-        redirectAttributes.addFlashAttribute(
-                "successMessage",
-                "Registration successful! Please log in."
-        );
-        return "redirect:/auth/login";
-    }
-
-    @GetMapping("logout")
-    public String logout() {
-        return "redirect:/auth/login";
+            RedirectAttributes redirectAttributes) {
+        try {
+            authService.registerUser(request);
+            redirectAttributes.addFlashAttribute("successMessage", "Account created! Please sign in.");
+            return "redirect:/auth/login";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("registrationRequest", request);
+            return "auth/register";
+        }
     }
 }

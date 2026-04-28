@@ -1,20 +1,98 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Portfolio Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .hero { text-align: center; max-width: 560px; padding: 0 1.5rem; }
+
+        .hero-eyebrow {
+            font-size: 0.72rem;
+            color: #4a6a90;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.4rem, 6vw, 3.4rem);
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 1.2rem;
+        }
+
+        .hero-title span { color: #4a90d9; }
+
+        .hero-sub {
+            color: #789bc5;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary-hero {
+            background: linear-gradient(135deg, #1f5090, #113568);
+            color: white;
+            border: none;
+            padding: 0.85rem 2.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 12px 28px -12px #000c1f;
+        }
+
+        .btn-primary-hero:hover {
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: 0 16px 32px -12px #000c1f;
+        }
+
+        .btn-ghost-hero {
+            background: transparent;
+            color: #789bc5;
+            border: 1.5px solid #263c5a;
+            padding: 0.85rem 2.2rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: border-color 0.15s, color 0.15s;
+        }
+
+        .btn-ghost-hero:hover {
+            border-color: #3f7ad0;
+            color: #a6c5ff;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
-    <div class="jumbotron mt-4">
-        <h1 class="display-4">Welcome to My Spring Portfolio</h1>
-        <p class="lead">Manage your investment portfolio with ease.</p>
-        <hr class="my-4">
-        <p>Track your investments, monitor performance, and manage your fund allocation all in one place.</p>
-        <a class="btn btn-primary btn-lg" href="/auth/login" role="button">Login</a>
-        <a class="btn btn-success btn-lg ms-2" href="/auth/register" role="button">Register</a>
+
+<div class="hero">
+    <p class="hero-eyebrow">Portfolio Management</p>
+    <h1 class="hero-title">Your investments,<br><span>under control.</span></h1>
+    <p class="hero-sub">Track allocations, monitor performance, and manage your fund — all in one place.</p>
+    <div class="hero-actions">
+        <a href="/auth/login"    class="btn-primary-hero">Sign in</a>
+        <a href="/auth/register" class="btn-ghost-hero">Create account</a>
     </div>
 </div>
+
 </body>
 </html>
