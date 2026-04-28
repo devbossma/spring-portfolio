@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 
 @Controller
 @RequestMapping("/investments")
@@ -31,7 +32,7 @@ public class InvestmentController {
         } else if ("amount_desc".equals(sort)) {
             investments.sort((a, b) -> b.getInvestedAmount().compareTo(a.getInvestedAmount()));
         } else if ("name".equals(sort)) {
-            investments.sort((a, b) -> a.getName().compareTo(b.getName()));
+            investments.sort(Comparator.comparing(InvestmentEntity::getName));
         }
         model.addAttribute("investments", investments);
         model.addAttribute("sort", sort);
@@ -41,26 +42,25 @@ public class InvestmentController {
     @PostMapping("")
     public String addInvestment(@AuthenticationPrincipal UserEntity currentUser, InvestmentEntity investment) {
         investment.setPortfolio(currentUser.getPortfolio());
-        investmentService.addInvestment(investment);
-        return "redirect:/investments";
-    }
-
-    @PostMapping("/update")
-    public String updateInvestmentName(@RequestParam Long id, @RequestParam String name) {
-        investmentService.updateInvestmentName(id, name);
+        investmentService.addInvestment(investment, currentUser);
         return "redirect:/investments";
     }
 
     @PostMapping("/update-value")
     public String updateInvestmentCurrentValue(@RequestParam Long id, @RequestParam BigDecimal currentValue) {
-        investmentService.updateInvestmentCurrentValue(id, currentValue);
-        return "redirect:/investments";
+        InvestmentEntity investment = investmentService.getInvestmentById(id);
+        if (!investment.isExited()) {
+            investmentService.updateInvestmentCurrentValue(id, currentValue);
+        }
+        return "redirect:/investments/" + id;
     }
 
     @PostMapping("/exit")
-    public String exitInvestment(@RequestParam Long id, @RequestParam BigDecimal exitValue) {
-        investmentService.exitInvestment(id, exitValue);
-        return "redirect:/investments";
+    public String exitInvestment(@AuthenticationPrincipal UserEntity currentUser,
+                                 @RequestParam Long id,
+                                 @RequestParam BigDecimal exitValue) {
+        investmentService.exitInvestment(id, exitValue, currentUser);
+        return "redirect:/investments/" + id;
     }
 
     @GetMapping("/{id}")
@@ -73,6 +73,9 @@ public class InvestmentController {
     @GetMapping("/{id}/edit")
     public String editInvestment(@PathVariable Long id, Model model) {
         InvestmentEntity investment = investmentService.getInvestmentById(id);
+        if (investment.isExited()) {
+            return "redirect:/investments/" + id;
+        }
         model.addAttribute("investment", investment);
         return "investments/edit";
     }
@@ -88,6 +91,9 @@ public class InvestmentController {
                                    @RequestParam Integer quantity,
                                    @RequestParam BigDecimal currentValue) {
         InvestmentEntity existing = investmentService.getInvestmentById(id);
+        if (existing.isExited()) {
+            return "redirect:/investments/" + id;
+        }
         existing.setName(name);
         existing.setSector(sector);
         existing.setStatus(status);
@@ -96,8 +102,7 @@ public class InvestmentController {
         existing.setPricePerUnit(pricePerUnit);
         existing.setQuantity(quantity);
         existing.setCurrentValue(currentValue);
-        // Recalculate invested amount
-        existing.setInvestedAmount(pricePerUnit.multiply(java.math.BigDecimal.valueOf(quantity)));
+        existing.setInvestedAmount(pricePerUnit.multiply(BigDecimal.valueOf(quantity)));
 
         investmentService.updateInvestment(existing);
         return "redirect:/investments/" + id;

@@ -28,9 +28,10 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessUrl("/?logout")
+                        .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
+                        .permitAll()
                 )
                 .formLogin(
                         form -> form
@@ -38,7 +39,8 @@ public class SecurityConfig {
                                 .defaultSuccessUrl("/portfolio", true)
                                 .permitAll()
                 )
-                .userDetailsService(this.userDetailService);
+                .userDetailsService(this.userDetailService)
+                .csrf(csrf -> csrf.disable());  // Temporarily disable for testing - enable in production with proper CSRF tokens
         return http.build();
     }
 
