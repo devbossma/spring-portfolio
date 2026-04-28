@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ public class FundEntity {
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(precision = 19, scale = 2)
-    private BigDecimal totalCapital = BigDecimal.valueOf(10_0000_000L);
+    private BigDecimal totalCapital = BigDecimal.ZERO;
 
     @Column(precision = 19, scale = 2)
     private BigDecimal deployedCapital = BigDecimal.ZERO;
@@ -46,6 +47,7 @@ public class FundEntity {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-    @CreationTimestamp
+
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
