@@ -9,4 +9,5 @@ import java.util.List;
 public interface FundTransactionRepository extends JpaRepository<FundTransactionEntity, String> {
 
     List<FundTransactionEntity> findByFundIdOrderByCreatedAtDesc(Long fundId);
+    List<FundTransactionEntity> findTop3ByFundIdOrderByCreatedAtDesc(Long fundId);
 }

@@ -1,39 +1,100 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investments – My Portfolio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <script src="https://unpkg.com/feather-icons"></script>
 </head>
-<body class="bg-light">
+<body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/portfolio">My Portfolio</a>
-        <div class="ms-auto d-flex align-items-center gap-2">
-            <a href="/portfolio"    class="btn btn-outline-light btn-sm">Dashboard</a>
-            <a href="/investments"  class="btn btn-outline-light btn-sm">Investments</a>
-            <a href="/transactions" class="btn btn-outline-light btn-sm">Transactions</a>
-            <form th:action="@{/auth/logout}" method="post" class="d-inline">
-                <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
-            </form>
+<!-- ── Sidebar ─────────────────────────────────────────── -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">
+            <i data-feather="bar-chart-2" width="16" height="16" stroke="#7eb0ff"></i>
+        </div>
+        <div>
+            <div class="sidebar-brand-name">My Portfolio</div>
+            <div class="sidebar-brand-sub">fund management</div>
         </div>
     </div>
-</nav>
 
-<div class="container py-4">
+    <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Navigation</div>
+        <a href="/portfolio"    class="sidebar-link"><i data-feather="grid"></i> Dashboard</a>
+        <a href="/investments"  class="sidebar-link active"><i data-feather="trending-up"></i> Investments</a>
+        <a href="/transactions" class="sidebar-link"><i data-feather="list"></i> Transactions</a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="sidebar-user-avatar"><i data-feather="user"></i></div>
+            <div>
+                <div class="sidebar-user-name" sec:authentication="name">User</div>
+                <div class="sidebar-user-role">Portfolio Manager</div>
+            </div>
+        </div>
+        <form th:action="@{/auth/logout}" method="post">
+            <button type="submit" class="sidebar-logout-btn">
+                <i data-feather="log-out"></i> Sign Out
+            </button>
+        </form>
+    </div>
+</aside>
+
+<!-- ── Page Content ─────────────────────────────────────── -->
+<div class="page-wrapper">
+
+    <div class="page-header d-flex justify-content-between align-items-start">
+        <div>
+            <h1>Investments</h1>
+            <p>Manage and track your investment positions</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/investments(sort='name')}"
+               th:class="${sort == 'name'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">Name</a>
+            <a th:href="@{/investments(sort='amount_asc')}"
+               th:class="${sort == 'amount_asc'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">Amount ↑</a>
+            <a th:href="@{/investments(sort='amount_desc')}"
+               th:class="${sort == 'amount_desc'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">Amount ↓</a>
+        </div>
+    </div>
+
+    <div th:if="${investmentError}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <i data-feather="alert-circle" width="16" height="16" style="margin-right:6px;"></i>
+        <span th:text="${investmentError}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 
     <!-- Add Investment Form -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white border-bottom">
-            <h5 class="mb-0">New Investment</h5>
+            <h6 class="mb-0">New Investment</h6>
         </div>
         <div class="card-body">
             <form th:action="@{/investments}" method="post">
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label small text-muted">Name</label>
                         <input type="text" name="name" class="form-control" placeholder="e.g. Acme Corp" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Type</label>
+                        <select name="type" id="newTypeSelect" class="form-select" required>
+                            <option value="STOCK">Stock</option>
+                            <option value="PRIVATE">Private</option>
+                            <option value="ETF">ETF</option>
+                            <option value="BOND">Bond</option>
+                            <option value="CRYPTO">Crypto</option>
+                            <option value="REAL_ESTATE">Real Estate</option>
+                        </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label small text-muted">Price per Unit ($)</label>
@@ -60,18 +121,6 @@
                         </select>
                     </div>
                     <div class="col-md-1">
-                        <label class="form-label small text-muted">Stage</label>
-                        <select name="stage" class="form-select">
-                            <option value="PRE_SEED">Pre-Seed</option>
-                            <option value="SEED">Seed</option>
-                            <option value="SERIES_A">Series A</option>
-                            <option value="SERIES_B">Series B</option>
-                            <option value="SERIES_C">Series C</option>
-                            <option value="GROWTH">Growth</option>
-                            <option value="PUBLIC">Public</option>
-                        </select>
-                    </div>
-                    <div class="col-md-1">
                         <label class="form-label small text-muted">Risk</label>
                         <select name="riskLevel" class="form-select">
                             <option value="LOW">Low</option>
@@ -83,6 +132,18 @@
                     <div class="col-md-1 d-flex align-items-end">
                         <button type="submit" class="btn btn-success w-100">Add</button>
                     </div>
+                    <div class="col-md-3 d-none" id="newStageWrapper">
+                        <label class="form-label small text-muted">Stage <span class="text-muted">(Private only)</span></label>
+                        <select name="stage" id="newStageSelect" class="form-select" disabled>
+                            <option value="PRE_SEED">Pre-Seed</option>
+                            <option value="SEED">Seed</option>
+                            <option value="SERIES_A">Series A</option>
+                            <option value="SERIES_B">Series B</option>
+                            <option value="SERIES_C">Series C</option>
+                            <option value="GROWTH">Growth</option>
+                            <option value="PUBLIC">Public</option>
+                        </select>
+                    </div>
                 </div>
             </form>
         </div>
@@ -90,18 +151,6 @@
 
     <!-- Investments Table -->
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">All Investments</h5>
-            <div class="d-flex gap-2">
-                <a th:href="@{/investments(sort='name')}"
-                   th:class="${sort == 'name'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">Name</a>
-                <a th:href="@{/investments(sort='amount_asc')}"
-                   th:class="${sort == 'amount_asc'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">Amount ↑</a>
-                <a th:href="@{/investments(sort='amount_desc')}"
-                   th:class="${sort == 'amount_desc'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">Amount ↓</a>
-            </div>
-        </div>
-
         <div th:if="${#lists.isEmpty(investments)}" class="card-body">
             <p class="text-muted mb-0">No investments yet. Use the form above to add one.</p>
         </div>
@@ -111,6 +160,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>Name</th>
+                        <th>Type</th>
                         <th>Sector</th>
                         <th>Stage</th>
                         <th>Status</th>
@@ -123,8 +173,9 @@
                 <tbody>
                     <tr th:each="inv : ${investments}">
                         <td class="fw-semibold" th:text="${inv.name}">—</td>
-                        <td><span class="text-muted small" th:text="${inv.sector}">—</span></td>
-                        <td><span class="text-muted small" th:text="${inv.stage}">—</span></td>
+                        <td><span class="text-muted small" th:text="${inv.type ?: '—'}">—</span></td>
+                        <td><span class="text-muted small" th:text="${inv.sector ?: '—'}">—</span></td>
+                        <td><span class="text-muted small" th:text="${inv.stage ?: '—'}">—</span></td>
                         <td>
                             <span th:class="${'badge ' +
                                 (inv.status.name() == 'ACTIVE'     ? 'bg-success' :
@@ -143,8 +194,8 @@
                         </td>
                         <td class="text-center text-nowrap">
                             <a th:href="@{/investments/{id}(id=${inv.id})}" class="btn btn-outline-primary btn-sm">View</a>
-                            <a th:if="${!inv.exited}" th:href="@{/investments/{id}/edit(id=${inv.id})}" class="btn btn-outline-secondary btn-sm">Edit</a>
-                            <button th:if="${!inv.exited}"
+                            <a th:if="${inv.active}" th:href="@{/investments/{id}/edit(id=${inv.id})}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                            <button th:if="${inv.active}"
                                     class="btn btn-outline-danger btn-sm"
                                     data-bs-toggle="modal"
                                     th:data-bs-target="'#exitModal-' + ${inv.id}">Exit</button>
@@ -159,7 +210,7 @@
 
 <!-- Exit Modals -->
 <div th:each="inv : ${investments}">
-    <div th:if="${!inv.exited}" class="modal fade" th:id="'exitModal-' + ${inv.id}" tabindex="-1">
+    <div th:if="${inv.active}" class="modal fade" th:id="'exitModal-' + ${inv.id}" tabindex="-1">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
@@ -184,6 +235,41 @@
     </div>
 </div>
 
+<!-- SSE Toast -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999">
+    <div id="notifToast" class="toast align-items-center text-bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <strong id="notifHeader"></strong><br>
+                <span id="notifContent"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    feather.replace();
+
+    function updateNewStageVisibility() {
+        const type = document.getElementById('newTypeSelect').value;
+        const wrapper = document.getElementById('newStageWrapper');
+        const select = document.getElementById('newStageSelect');
+        const isPrivate = type === 'PRIVATE';
+        wrapper.classList.toggle('d-none', !isPrivate);
+        select.disabled = !isPrivate;
+    }
+    document.getElementById('newTypeSelect').addEventListener('change', updateNewStageVisibility);
+
+    const evtSource = new EventSource('/notifications/stream');
+    evtSource.addEventListener('notification', function(e) {
+        const data = JSON.parse(e.data);
+        document.getElementById('notifHeader').textContent = data.header;
+        document.getElementById('notifContent').textContent = data.content;
+        new bootstrap.Toast(document.getElementById('notifToast'), { delay: 6000 }).show();
+    });
+    evtSource.onerror = function() { evtSource.close(); };
+</script>
 </body>
 </html>

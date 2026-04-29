@@ -32,7 +32,7 @@ public class FundService {
                 .user(user)
                 .type(FundTransactionType.DEPOSIT)
                 .fund(fund)
-                .notes("Initial balance")
+                .notes("Initial Balance")
                 .build());
     }
 
@@ -47,7 +47,7 @@ public class FundService {
                 .user(user)
                 .type(FundTransactionType.DEPOSIT)
                 .fund(fund)
-                .notes("Capital deposit")
+                .notes("Capital Deposit")
                 .build());
     }
 
@@ -67,6 +67,20 @@ public class FundService {
                 .type(FundTransactionType.WITHDRAWAL)
                 .fund(fund)
                 .notes("Capital withdrawal")
+                .build());
+    }
+
+    @Transactional
+    public void recordFundWriteOff(FundEntity fund, BigDecimal amount, UserEntity user, String notes) {
+        fund.setTotalCapital(fund.getTotalCapital().subtract(amount));
+        fundRepository.save(fund);
+
+        fundTransactionRepository.save(FundTransactionEntity.builder()
+                .amount(amount)
+                .user(user)
+                .type(FundTransactionType.WRITE_OFF)
+                .fund(fund)
+                .notes(notes)
                 .build());
     }
 

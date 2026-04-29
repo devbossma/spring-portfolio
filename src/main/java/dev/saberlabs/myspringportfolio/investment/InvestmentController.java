@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -40,16 +41,22 @@ public class InvestmentController {
     }
 
     @PostMapping("")
-    public String addInvestment(@AuthenticationPrincipal UserEntity currentUser, InvestmentEntity investment) {
+    public String addInvestment(@AuthenticationPrincipal UserEntity currentUser,
+                                InvestmentEntity investment,
+                                RedirectAttributes redirectAttributes) {
         investment.setPortfolio(currentUser.getPortfolio());
-        investmentService.addInvestment(investment, currentUser);
+        try {
+            investmentService.addInvestment(investment, currentUser);
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("investmentError", e.getMessage());
+        }
         return "redirect:/investments";
     }
 
     @PostMapping("/update-value")
     public String updateInvestmentCurrentValue(@RequestParam Long id, @RequestParam BigDecimal currentValue) {
         InvestmentEntity investment = investmentService.getInvestmentById(id);
-        if (!investment.isExited()) {
+        if (investment.isActive()) {
             investmentService.updateInvestmentCurrentValue(id, currentValue);
         }
         return "redirect:/investments/" + id;
@@ -63,6 +70,16 @@ public class InvestmentController {
         return "redirect:/investments/" + id;
     }
 
+    @PostMapping("/write-off")
+    public String writeOffInvestment(@AuthenticationPrincipal UserEntity currentUser,
+                                     @RequestParam Long id) {
+        InvestmentEntity investment = investmentService.getInvestmentById(id);
+        if (investment.isActive()) {
+            investmentService.writeOffInvestment(id, currentUser);
+        }
+        return "redirect:/investments/" + id;
+    }
+
     @GetMapping("/{id}")
     public String viewInvestment(@PathVariable Long id, Model model) {
         InvestmentEntity investment = investmentService.getInvestmentById(id);
@@ -73,7 +90,7 @@ public class InvestmentController {
     @GetMapping("/{id}/edit")
     public String editInvestment(@PathVariable Long id, Model model) {
         InvestmentEntity investment = investmentService.getInvestmentById(id);
-        if (investment.isExited()) {
+        if (!investment.isActive()) {
             return "redirect:/investments/" + id;
         }
         model.addAttribute("investment", investment);
@@ -83,21 +100,21 @@ public class InvestmentController {
     @PostMapping("/{id}/edit")
     public String updateInvestment(@PathVariable Long id,
                                    @RequestParam String name,
+                                   @RequestParam InvestmentType type,
                                    @RequestParam InvestmentSector sector,
-                                   @RequestParam InvestmentStatus status,
-                                   @RequestParam InvestmentStage stage,
+                                   @RequestParam(required = false) InvestmentStage stage,
                                    @RequestParam RiskLevel riskLevel,
                                    @RequestParam BigDecimal pricePerUnit,
                                    @RequestParam Integer quantity,
                                    @RequestParam BigDecimal currentValue) {
         InvestmentEntity existing = investmentService.getInvestmentById(id);
-        if (existing.isExited()) {
+        if (!existing.isActive()) {
             return "redirect:/investments/" + id;
         }
         existing.setName(name);
+        existing.setType(type);
         existing.setSector(sector);
-        existing.setStatus(status);
-        existing.setStage(stage);
+        existing.setStage(type == InvestmentType.PRIVATE ? stage : null);
         existing.setRiskLevel(riskLevel);
         existing.setPricePerUnit(pricePerUnit);
         existing.setQuantity(quantity);

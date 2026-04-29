@@ -1,0 +1,206 @@
+/* ── App layout ─────────────────────────────────────────── */
+body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: #f0f4f8;
+    margin: 0;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 225px;
+    height: 100vh;
+    background: #0d1520;
+    border-right: 1px solid #182130;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1.35rem 1.25rem 1.2rem;
+    border-bottom: 1px solid #182130;
+}
+
+.sidebar-brand-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, #1d4ed8, #1e3a6e);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-brand-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #cce0ff;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.sidebar-brand-sub {
+    font-size: 0.62rem;
+    color: #344f68;
+    letter-spacing: 0.3px;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0.75rem;
+}
+
+.sidebar-section-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: #2d4a62;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    padding: 0.4rem 0.75rem 0.5rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    color: #5b7d9c;
+    text-decoration: none;
+    font-size: 0.855rem;
+    font-weight: 500;
+    transition: background 0.12s, color 0.12s;
+    margin-bottom: 1px;
+    white-space: nowrap;
+}
+
+.sidebar-link:hover {
+    background: #131f2e;
+    color: #9dc2e8;
+}
+
+.sidebar-link.active {
+    background: #0f2a44;
+    color: #6eaaff;
+    font-weight: 600;
+}
+
+.sidebar-link svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.8; }
+.sidebar-link.active svg { opacity: 1; }
+
+/* ── Sidebar footer / user ───────────────────────────────── */
+.sidebar-footer {
+    padding: 0.75rem;
+    border-top: 1px solid #182130;
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.75rem 0.75rem;
+}
+
+.sidebar-user-avatar {
+    width: 30px; height: 30px;
+    background: #182130;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-user-avatar svg { width: 13px; height: 13px; color: #5b7d9c; }
+
+.sidebar-user-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #8aaecf;
+    line-height: 1.2;
+}
+
+.sidebar-user-role {
+    font-size: 0.65rem;
+    color: #2d4a62;
+}
+
+.sidebar-logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    color: #5b7d9c;
+    background: transparent;
+    border: none;
+    font-size: 0.855rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background 0.12s, color 0.12s;
+    font-family: inherit;
+}
+
+.sidebar-logout-btn:hover {
+    background: #2a1515;
+    color: #f08080;
+}
+
+.sidebar-logout-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* ── Page wrapper ────────────────────────────────────────── */
+.page-wrapper {
+    margin-left: 225px;
+    min-height: 100vh;
+    padding: 2rem 2.5rem;
+}
+
+.page-header {
+    margin-bottom: 1.75rem;
+}
+
+.page-header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a2b3c;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.page-header p {
+    color: #7a95ae;
+    font-size: 0.83rem;
+    margin: 0.2rem 0 0;
+}
+
+/* ── Capital tab pills ───────────────────────────────────── */
+.capital-pills .nav-link {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.9rem;
+    color: #6c757d;
+    border-radius: 20px;
+}
+
+.capital-pills .nav-link.active {
+    background: #0d6efd;
+    color: #fff;
+}
+
+/* ── Transaction list items ─────────────────────────────── */
+.tx-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.tx-list-item:last-child { border-bottom: none; }

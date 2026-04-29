@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -22,15 +23,18 @@ public class InvestmentService {
     private final PortfolioService portfolioService;
     private final FundService fundService;
     private final InvestmentTransactionRepository investmentTransactionRepository;
+    private final InvestmentActivationService investmentActivationService;
 
     public InvestmentService(InvestmentRepository investmentRepository,
                              PortfolioService portfolioService,
                              FundService fundService,
-                             InvestmentTransactionRepository investmentTransactionRepository) {
+                             InvestmentTransactionRepository investmentTransactionRepository,
+                             InvestmentActivationService investmentActivationService) {
         this.investmentRepository = investmentRepository;
         this.portfolioService = portfolioService;
         this.fundService = fundService;
         this.investmentTransactionRepository = investmentTransactionRepository;
+        this.investmentActivationService = investmentActivationService;
     }
 
     public List<InvestmentEntity> listInvestmentsByPortfolioId(Long portfolioId) {
@@ -46,7 +50,7 @@ public class InvestmentService {
                     investment.getPricePerUnit().multiply(BigDecimal.valueOf(investment.getQuantity())));
         }
 
-        // Reload portfolio and fund from DB to get accurate balance (session object may be stale)
+        // Reloading the portfolio and fund from DB to get accurate balance.
         PortfolioEntity freshPortfolio = portfolioService.getPortfolioById(investment.getPortfolio().getId());
         FundEntity fund = freshPortfolio.getFund();
         BigDecimal dryPowder = fund.getDryPowder();
@@ -61,6 +65,10 @@ public class InvestmentService {
 
         investmentRepository.save(investment);
 
+        investmentActivationService.scheduleActivation(
+                investment.getId(), user.getId(),
+                Instant.now().plusSeconds(InvestmentActivationService.ACTIVATION_DELAY_SECONDS));
+
         // Record BUY transaction
         investmentTransactionRepository.save(InvestmentTransactionEntity.builder()
                 .amount(investment.getInvestedAmount())
@@ -69,7 +77,7 @@ public class InvestmentService {
                 .investment(investment)
                 .pricePerUnit(investment.getPricePerUnit())
                 .quantity(investment.getQuantity())
-                .notes("Investment purchase")
+                .notes("Investment Purchase")
                 .build());
 
         portfolioService.updatePortfolioTotals(freshPortfolio);
@@ -99,7 +107,7 @@ public class InvestmentService {
                 .investment(investment)
                 .pricePerUnit(exitValue.divide(BigDecimal.valueOf(investment.getQuantity()), 2, java.math.RoundingMode.HALF_UP))
                 .quantity(investment.getQuantity())
-                .notes("Investment exit")
+                .notes("Investment Exit")
                 .build());
 
         // Return exit proceeds to the fund and record a DEPOSIT fund transaction
@@ -107,7 +115,35 @@ public class InvestmentService {
         fundService.recordFundDeposit(fund, exitValue, user,
                 "Exit proceeds from: " + investment.getName());
 
-        // Recalculate deployedCapital (exited investment is now excluded)
+        // Recalculate deployedCapital.
+        portfolioService.updatePortfolioTotals(investment.getPortfolio());
+    }
+
+    @Transactional
+    public void writeOffInvestment(Long id, UserEntity user) {
+        InvestmentEntity investment = investmentRepository.findById(id).orElseThrow();
+        if (!investment.isActive()) {
+            throw new IllegalStateException("Only active investments can be written off.");
+        }
+        investment.setStatus(InvestmentStatus.WRITTEN_OFF);
+        investment.setExitValue(BigDecimal.ZERO);
+        investment.setExitAt(java.time.LocalDateTime.now());
+        investmentRepository.save(investment);
+
+        investmentTransactionRepository.save(InvestmentTransactionEntity.builder()
+                .amount(investment.getInvestedAmount())
+                .user(user)
+                .type(dev.saberlabs.myspringportfolio.transaction.InvestmentTransactionType.WRITE_OFF)
+                .investment(investment)
+                .pricePerUnit(BigDecimal.ZERO)
+                .quantity(investment.getQuantity())
+                .notes("Investment Written Off")
+                .build());
+
+        FundEntity fund = investment.getPortfolio().getFund();
+        fundService.recordFundWriteOff(fund, investment.getInvestedAmount(), user,
+                "Write-off: " + investment.getName());
+
         portfolioService.updatePortfolioTotals(investment.getPortfolio());
     }
 

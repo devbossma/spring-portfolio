@@ -34,6 +34,10 @@ public class InvestmentEntity {
     private PortfolioEntity portfolio;
 
 
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private InvestmentType type;
+
     @Column(name = "sector")
     @Enumerated(EnumType.STRING)
     private InvestmentSector sector;
@@ -81,12 +85,12 @@ public class InvestmentEntity {
 
     @Transient
     public BigDecimal getProfitLoss() {
-        if (currentValue == null || investedAmount == null) {
+        if (currentValue == null || pricePerUnit == null || quantity == null) {
             return BigDecimal.ZERO;
         }
-        return currentValue
+        return currentValue.subtract(pricePerUnit)
                 .multiply(BigDecimal.valueOf(quantity))
-                .subtract(investedAmount);
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     @Transient
@@ -97,12 +101,13 @@ public class InvestmentEntity {
 
     @Transient
     public BigDecimal getProfitLossPercentage() {
-        if (investedAmount == null || investedAmount.compareTo(BigDecimal.ZERO) == 0) {
+        if (pricePerUnit == null || pricePerUnit.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return getProfitLoss()
-                .divide(investedAmount, 2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100));
+        return currentValue.subtract(pricePerUnit)
+                .divide(pricePerUnit, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     public boolean isActive()   { return this.status == InvestmentStatus.ACTIVE; }
