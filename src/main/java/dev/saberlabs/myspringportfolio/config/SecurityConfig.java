@@ -12,7 +12,9 @@ import org.springframework.security.web.SecurityFilterChain;
 /*
  * Configures Spring Security for the application.
  * Defines which routes are public, sets up form-based login and logout behavior,
- * wires the custom UserDetailsService, and disables CSRF for the current development phase.
+ * and wires the custom UserDetailsService.
+ * CSRF protection is enabled (Spring Security default). All POST forms use th:action,
+ * so Thymeleaf injects the CSRF token automatically — no manual token handling needed.
  * */
 public class SecurityConfig {
 
@@ -54,8 +56,7 @@ public class SecurityConfig {
                                 .defaultSuccessUrl("/portfolio", true)
                                 .permitAll()
                 )
-                .userDetailsService(this.userDetailService)
-                .csrf(csrf -> csrf.disable());  // Temporarily disable for testing - enable in production with proper CSRF tokens
+                .userDetailsService(this.userDetailService);
         return http.build();
     }
 
