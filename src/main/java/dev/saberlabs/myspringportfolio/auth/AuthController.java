@@ -11,6 +11,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/auth")
+/*
+ * Handles HTTP requests for authentication flows: login, registration, and registration form submission.
+ * Redirects already-authenticated users away from auth pages to prevent re-login.
+ * */
 public class AuthController {
 
     private final AuthService authService;
@@ -20,6 +24,12 @@ public class AuthController {
     }
 
     @GetMapping("/login")
+    /*
+     * Serves the login page.
+     * Params:
+     * - authentication: The current Spring Security authentication context.
+     * Returns: The login view, or a redirect to /portfolio if the user is already authenticated.
+     * */
     public String login(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             return "redirect:/portfolio";
@@ -28,6 +38,13 @@ public class AuthController {
     }
 
     @GetMapping("/register")
+    /*
+     * Serves the registration page with an empty RegistrationRequest form model.
+     * Params:
+     * - authentication: The current Spring Security authentication context.
+     * - model: The MVC model used to pass the empty registration form to the view.
+     * Returns: The registration view, or a redirect to /portfolio if the user is already authenticated.
+     * */
     public String register(Authentication authentication, Model model) {
         if (authentication != null && authentication.isAuthenticated()) {
             return "redirect:/portfolio";
@@ -37,6 +54,16 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    /*
+     * Handles registration form submission.
+     * On success, redirects to the login page with a flash success message.
+     * On failure (e.g. duplicate username/email or password mismatch), re-renders the form with an error message.
+     * Params:
+     * - request: The populated RegistrationRequest form data.
+     * - model: The MVC model for passing error data back to the view.
+     * - redirectAttributes: Flash attributes used to pass a success message on redirect.
+     * Returns: A redirect to /auth/login on success, or the register view on error.
+     * */
     public String handleRegister(
             @ModelAttribute("registrationRequest") RegistrationRequest request,
             Model model,

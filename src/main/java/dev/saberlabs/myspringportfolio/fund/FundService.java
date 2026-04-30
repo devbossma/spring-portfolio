@@ -10,6 +10,11 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 @Service
+/*
+ * Manages all fund-level financial operations: initial balance setup, capital deposits,
+ * withdrawals, write-offs, and fund-level deposit recording.
+ * Each operation is transactional and records a corresponding FundTransactionEntity for the audit ledger.
+ * */
 public class FundService {
 
     private static final BigDecimal INITIAL_BALANCE = BigDecimal.valueOf(10_000_000L);
@@ -23,6 +28,14 @@ public class FundService {
     }
 
     @Transactional
+    /*
+     * Seeds a newly created fund with the initial balance of $10,000,000 and records it as a DEPOSIT transaction.
+     * Called once during user registration, immediately after the user and fund are persisted.
+     * Params:
+     * - fund: The newly created FundEntity to initialize.
+     * - user: The user who owns the fund (used for transaction attribution).
+     * Returns: void.
+     * */
     public void recordInitialBalance(FundEntity fund, UserEntity user) {
         fund.setTotalCapital(INITIAL_BALANCE);
         fundRepository.save(fund);
@@ -37,6 +50,14 @@ public class FundService {
     }
 
     @Transactional
+    /*
+     * Adds capital to a fund by increasing its totalCapital and recording a DEPOSIT transaction.
+     * Params:
+     * - fundId: The ID of the fund to credit.
+     * - amount: The amount of capital to add.
+     * - user: The user performing the deposit (used for transaction attribution).
+     * Returns: void.
+     * */
     public void addToFund(Long fundId, BigDecimal amount, UserEntity user) {
         FundEntity fund = fundRepository.findById(fundId).orElseThrow();
         fund.setTotalCapital(fund.getTotalCapital().add(amount));
@@ -52,6 +73,16 @@ public class FundService {
     }
 
     @Transactional
+    /*
+     * Withdraws capital from a fund by decreasing its totalCapital and recording a WITHDRAWAL transaction.
+     * Validation:
+     * - The requested amount must not exceed available dry powder (uninvested capital).
+     * Params:
+     * - fundId: The ID of the fund to debit.
+     * - amount: The amount of capital to withdraw.
+     * - user: The user performing the withdrawal (used for transaction attribution).
+     * Returns: void. Throws IllegalArgumentException if insufficient dry powder.
+     * */
     public void withdraw(Long fundId, BigDecimal amount, UserEntity user) {
         FundEntity fund = fundRepository.findById(fundId).orElseThrow();
         if (amount.compareTo(fund.getDryPowder()) > 0) {
@@ -71,6 +102,16 @@ public class FundService {
     }
 
     @Transactional
+    /*
+     * Records a permanent capital loss (write-off) against the fund by reducing totalCapital
+     * and logging a WRITE_OFF transaction. Called when an investment is marked as WRITTEN_OFF.
+     * Params:
+     * - fund: The FundEntity to write off against.
+     * - amount: The amount being written off.
+     * - user: The user who owns the fund (used for transaction attribution).
+     * - notes: A description of the write-off reason.
+     * Returns: void.
+     * */
     public void recordFundWriteOff(FundEntity fund, BigDecimal amount, UserEntity user, String notes) {
         fund.setTotalCapital(fund.getTotalCapital().subtract(amount));
         fundRepository.save(fund);
@@ -85,6 +126,15 @@ public class FundService {
     }
 
     @Transactional
+    /*
+     * Credits the fund with returned capital (e.g., from an exited investment) and records a DEPOSIT transaction.
+     * Params:
+     * - fund: The FundEntity to credit.
+     * - amount: The amount to add back to the fund.
+     * - user: The user who owns the fund (used for transaction attribution).
+     * - notes: A description of the deposit reason.
+     * Returns: void.
+     * */
     public void recordFundDeposit(FundEntity fund, BigDecimal amount, UserEntity user, String notes) {
         fund.setTotalCapital(fund.getTotalCapital().add(amount));
         fundRepository.save(fund);

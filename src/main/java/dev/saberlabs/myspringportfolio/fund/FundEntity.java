@@ -21,6 +21,11 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name="funds")
 @Builder
+/*
+ * JPA entity representing a user's investment fund.
+ * Tracks total capital, deployed capital (amount currently invested), and profit/loss.
+ * Linked one-to-one with a PortfolioEntity and one-to-many with FundTransactionEntity records.
+ * */
 public class FundEntity {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
@@ -35,6 +40,11 @@ public class FundEntity {
     private BigDecimal profitLoss = BigDecimal.ZERO;
 
     @Transient
+    /*
+     * Calculates the uninvested (available) capital in the fund, known as "dry powder".
+     * This is a derived, non-persisted value computed as totalCapital minus deployedCapital.
+     * Returns: The amount of capital available for new investments.
+     * */
     public BigDecimal getDryPowder() {
         return totalCapital.subtract(deployedCapital);
     }

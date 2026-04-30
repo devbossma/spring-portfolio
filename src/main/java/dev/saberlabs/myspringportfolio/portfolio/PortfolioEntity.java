@@ -23,6 +23,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="portfolios")
+/*
+ * JPA entity representing a user's investment portfolio.
+ * Acts as the central aggregation point for a user's investments and fund.
+ * Tracks the total amount invested across all active investments and the portfolio's status.
+ * */
 public class PortfolioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,6 +59,12 @@ public class PortfolioEntity {
 
 
 
+    /*
+     * Associates an InvestmentEntity with this portfolio, ensuring the bidirectional relationship is maintained.
+     * Params:
+     * - investment: The investment to add. No-op if null.
+     * Returns: void.
+     * */
     public void addInvestment(InvestmentEntity investment) {
         if (investment != null) {
             if (investments == null) {
@@ -64,6 +75,12 @@ public class PortfolioEntity {
         }
     }
 
+        /*
+         * Removes an InvestmentEntity from this portfolio and clears the back-reference on the investment.
+         * Params:
+         * - investment: The investment to remove. No-op if null or not in the list.
+         * Returns: void.
+         * */
         public void removeInvestment(InvestmentEntity investment) {
             if (investment != null && investments != null) {
                 investments.remove(investment);

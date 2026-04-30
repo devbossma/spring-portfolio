@@ -9,6 +9,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
+/*
+ * Handles HTTP GET requests for the application's home and portfolio views.
+ * Resolves the authenticated user's portfolio data and passes it to the Thymeleaf templates.
+ * */
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
@@ -21,6 +25,13 @@ public class PortfolioController {
     }
 
     @GetMapping("/")
+    /*
+     * Serves the application's home (landing) page.
+     * Redirects authenticated users directly to their portfolio.
+     * Params:
+     * - authentication: The current Spring Security authentication context.
+     * Returns: The "home" view, or a redirect to /portfolio if already authenticated.
+     * */
     public String home(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             return "redirect:/portfolio";
@@ -29,6 +40,14 @@ public class PortfolioController {
     }
 
     @GetMapping("/portfolio")
+    /*
+     * Serves the main portfolio view with all relevant data for the authenticated user.
+     * Adds the portfolio, fund, investment list, and the 3 most recent fund transactions to the model.
+     * Params:
+     * - currentUser: The authenticated user whose portfolio data will be displayed.
+     * - model: The MVC model used to pass data to the portfolio Thymeleaf template.
+     * Returns: The "portfolio" view.
+     * */
     public String portfolio(@AuthenticationPrincipal UserEntity currentUser, Model model) {
         var portfolio = portfolioService.getPortfolioByUser(currentUser);
         Long fundId = portfolio.getFund().getId();

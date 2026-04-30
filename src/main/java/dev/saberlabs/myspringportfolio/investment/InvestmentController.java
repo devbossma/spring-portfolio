@@ -25,6 +25,7 @@ public class InvestmentController {
     }
 
     @GetMapping("")
+    // Listing investments with optional sorting by amount (asc/desc) or name.
     public String listInvestments(@AuthenticationPrincipal UserEntity currentUser, Model model,
                                   @RequestParam(required = false) String sort) {
         var investments = investmentService.listInvestmentsByPortfolioId(currentUser.getPortfolio().getId());
@@ -41,6 +42,7 @@ public class InvestmentController {
     }
 
     @PostMapping("")
+    // Adding new investment with validation for sufficient funds and proper input.
     public String addInvestment(@AuthenticationPrincipal UserEntity currentUser,
                                 InvestmentEntity investment,
                                 RedirectAttributes redirectAttributes) {

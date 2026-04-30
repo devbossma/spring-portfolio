@@ -14,6 +14,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="notifications")
+/*
+ * JPA entity representing a user notification record.
+ * Each notification has a header, content body, read status, and the user it belongs to.
+ * Notifications are created when significant events occur (e.g., an investment is activated).
+ * */
 public class NotificationEntity {
 
     @Id

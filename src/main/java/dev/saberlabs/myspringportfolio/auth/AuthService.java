@@ -12,6 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 
 @Service
+/*
+ * Handles user registration logic: validates uniqueness, encodes the password, and sets up the user's
+ * initial portfolio, fund, and starting balance of $10M upon successful registration.
+ * */
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -25,6 +29,17 @@ public class AuthService {
     }
 
     @Transactional
+    /*
+     * Registers a new user by validating their credentials and setting up their account structure.
+     * Validates:
+     * - Username and email are not already taken.
+     * - Password and confirmPassword match.
+     * On success, creates a UserEntity with an associated PortfolioEntity and FundEntity,
+     * saves the user, and records the initial $10M fund balance as the first transaction.
+     * Params:
+     * - request: The RegistrationRequest containing the user's email, username, password, and confirmPassword.
+     * Returns: void. Throws IllegalArgumentException if validation fails.
+     * */
     public void registerUser(RegistrationRequest request) {
         String email           = Objects.requireNonNull(request.getEmail());
         String username        = Objects.requireNonNull(request.getUsername());
@@ -41,7 +56,7 @@ public class AuthService {
         UserEntity user = new UserEntity();
         user.setEmail(email);
         user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setPassword(Objects.requireNonNull(passwordEncoder.encode(password)));
 
         FundEntity fund = new FundEntity();
         PortfolioEntity portfolio = new PortfolioEntity();

@@ -9,6 +9,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+/*
+ * Manages real-time notification delivery via Server-Sent Events (SSE) and persists notifications to the database.
+ * Maintains a ConcurrentHashMap of active SSE emitters keyed by user ID.
+ * When a notification is sent, it is saved to the database and, if the user is connected, pushed live via SSE.
+ * */
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -18,8 +23,14 @@ public class NotificationService {
         this.notificationRepository = notificationRepository;
     }
 
+    /*
+     * Registers an SSE emitter for the given user and sets up cleanup callbacks for completion, timeout, and errors.
+     * Params:
+     * - userId: The ID of the user subscribing to notifications.
+     * Returns: A long-lived SseEmitter tied to the user's connection.
+     * */
     public SseEmitter subscribe(Long userId) {
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        SseEmitter emitter = new SseEmitter(3 * 60 * 1000L);
         emitters.put(userId, emitter);
         emitter.onCompletion(() -> emitters.remove(userId));
         emitter.onTimeout(() -> emitters.remove(userId));
@@ -27,6 +38,16 @@ public class NotificationService {
         return emitter;
     }
 
+    /*
+     * Persists a notification to the database and, if the user has an active SSE connection, pushes it immediately.
+     * The SSE event is formatted as a JSON string with "header" and "content" fields.
+     * If the SSE send fails, the emitter is removed from the active connections map.
+     * Params:
+     * - user: The recipient user.
+     * - header: A short notification title.
+     * - content: The notification body text.
+     * Returns: void.
+     * */
     public void sendNotification(UserEntity user, String header, String content) {
         notificationRepository.save(NotificationEntity.builder()
                 .user(user)
@@ -46,6 +67,12 @@ public class NotificationService {
         }
     }
 
+    /*
+     * Escapes backslashes and double quotes in a string to produce safe JSON string values.
+     * Params:
+     * - s: The raw string to escape.
+     * Returns: The escaped string safe for embedding in a JSON value.
+     * */
     private String escapeJson(String s) {
         return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }

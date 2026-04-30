@@ -16,6 +16,13 @@ import java.util.Arrays;
 @Entity
 @Table(name = "investment_transactions")
 @NoArgsConstructor
+/*
+ * JPA entity representing a single investment-level financial transaction.
+ * Extends TransactionEntity for shared fields (id, amount, user, createdAt, notes).
+ * Each record captures a BUY, SELL, or WRITE_OFF operation against a specific investment.
+ * Tracks price-per-unit and quantity to support fractional/unit-based investment types.
+ * The validated setter ensures only recognized InvestmentTransactionType values are persisted.
+ * */
 public class InvestmentTransactionEntity extends TransactionEntity {
 
     @Enumerated(EnumType.STRING)
@@ -31,6 +38,12 @@ public class InvestmentTransactionEntity extends TransactionEntity {
 
     private Integer quantity;
 
+    /*
+     * Sets the transaction type after validating it is a recognized InvestmentTransactionType value.
+     * Params:
+     * - type: The InvestmentTransactionType to assign. Throws IllegalArgumentException if null or invalid.
+     * Returns: void.
+     * */
     public void setType(InvestmentTransactionType type) {
         if (type == null) {
             throw new IllegalArgumentException(
@@ -47,6 +60,13 @@ public class InvestmentTransactionEntity extends TransactionEntity {
     }
 
 
+    /*
+     * Validates that a SELL transaction does not exceed the currently held quantity.
+     * Only runs the check if the transaction type is SELL.
+     * Params:
+     * - currentQuantity: The number of units currently held in the investment.
+     * Returns: void. Throws IllegalStateException if the sell quantity exceeds the held quantity.
+     * */
     public void validateSell(Integer currentQuantity) {
         if (this.type == InvestmentTransactionType.SELL) {
             if (this.quantity > currentQuantity) {
@@ -58,11 +78,20 @@ public class InvestmentTransactionEntity extends TransactionEntity {
         }
     }
 
+    /*
+     * Calculates the total monetary value of this transaction (pricePerUnit × quantity).
+     * Returns BigDecimal.ZERO if either pricePerUnit or quantity is null.
+     * Returns: The total transaction value as a BigDecimal.
+     * */
     public BigDecimal getTotalValue() {
         if (pricePerUnit == null || quantity == null) return BigDecimal.ZERO;
         return pricePerUnit.multiply(BigDecimal.valueOf(quantity));
     }
 
+    /*
+     * Returns the category label for this transaction type, used for display and ledger reporting.
+     * Returns: "INVESTMENT".
+     * */
     @Override
     public String getTransactionCategory() {
         return "INVESTMENT";

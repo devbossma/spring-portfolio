@@ -25,6 +25,12 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
+/*
+ * JPA entity representing an application user.
+ * Implements Spring Security's UserDetails interface to integrate directly with the authentication system.
+ * Maintains account state flags (active, locked, expired, credentials expired) and is linked
+ * one-to-one with a PortfolioEntity, ensuring every user has exactly one portfolio.
+ * */
 public class UserEntity implements UserDetails {
 
     @Id

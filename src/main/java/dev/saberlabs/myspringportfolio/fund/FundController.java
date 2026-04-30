@@ -12,6 +12,10 @@ import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/funds")
+/*
+ * Handles HTTP POST requests for fund operations: depositing capital and withdrawing capital.
+ * Both operations redirect back to /portfolio on completion, passing any error messages via flash attributes.
+ * */
 public class FundController {
 
     private final FundService fundService;
@@ -21,6 +25,14 @@ public class FundController {
     }
 
     @PostMapping("/add")
+    /*
+     * Adds a specified amount of capital to the authenticated user's fund.
+     * Params:
+     * - currentUser: The authenticated user whose fund will be credited.
+     * - amount: The amount of capital to deposit.
+     * - redirectAttributes: Used to pass error messages back to the portfolio view.
+     * Returns: A redirect to /portfolio.
+     * */
     public String addToFund(@AuthenticationPrincipal UserEntity currentUser,
                             @RequestParam BigDecimal amount,
                             RedirectAttributes redirectAttributes) {
@@ -33,6 +45,15 @@ public class FundController {
     }
 
     @PostMapping("/withdraw")
+    /*
+     * Withdraws a specified amount of capital from the authenticated user's fund.
+     * Will fail if the requested amount exceeds available dry powder (uninvested capital).
+     * Params:
+     * - currentUser: The authenticated user whose fund will be debited.
+     * - amount: The amount of capital to withdraw.
+     * - redirectAttributes: Used to pass error messages back to the portfolio view.
+     * Returns: A redirect to /portfolio.
+     * */
     public String withdraw(@AuthenticationPrincipal UserEntity currentUser,
                            @RequestParam BigDecimal amount,
                            RedirectAttributes redirectAttributes) {

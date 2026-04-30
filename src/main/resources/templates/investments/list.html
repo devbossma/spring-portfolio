@@ -10,7 +10,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/sidebar.css">
-    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.js"></script>
 </head>
 <body>
 
@@ -58,12 +60,12 @@
             <p>Manage and track your investment positions</p>
         </div>
         <div class="d-flex gap-2">
-            <a th:href="@{/investments(sort='name')}"
-               th:class="${sort == 'name'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">Name</a>
-            <a th:href="@{/investments(sort='amount_asc')}"
-               th:class="${sort == 'amount_asc'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">Amount ↑</a>
-            <a th:href="@{/investments(sort='amount_desc')}"
-               th:class="${sort == 'amount_desc'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">Amount ↓</a>
+            <button type="button" data-sort="name"
+                    th:class="${sort == 'name'} ? 'btn btn-primary btn-sm sort-btn' : 'btn btn-outline-secondary btn-sm sort-btn'">Name</button>
+            <button type="button" data-sort="amount_asc"
+                    th:class="${sort == 'amount_asc'} ? 'btn btn-primary btn-sm sort-btn' : 'btn btn-outline-secondary btn-sm sort-btn'">Amount ↑</button>
+            <button type="button" data-sort="amount_desc"
+                    th:class="${sort == 'amount_desc'} ? 'btn btn-primary btn-sm sort-btn' : 'btn btn-outline-secondary btn-sm sort-btn'">Amount ↓</button>
         </div>
     </div>
 
@@ -171,7 +173,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="inv : ${investments}">
+                    <tr th:each="inv : ${investments}"
+                        th:attr="data-name=${inv.name},data-amount=${inv.investedAmount}">
                         <td class="fw-semibold" th:text="${inv.name}">—</td>
                         <td><span class="text-muted small" th:text="${inv.type ?: '—'}">—</span></td>
                         <td><span class="text-muted small" th:text="${inv.sector ?: '—'}">—</span></td>
@@ -251,7 +254,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     feather.replace();
+    NProgress.done();
+    document.querySelectorAll('.sidebar-link').forEach(function(link) {
+        link.addEventListener('click', function() { NProgress.start(); });
+    });
 
+    // Stage visibility for the new investment form
     function updateNewStageVisibility() {
         const type = document.getElementById('newTypeSelect').value;
         const wrapper = document.getElementById('newStageWrapper');
@@ -262,6 +270,36 @@
     }
     document.getElementById('newTypeSelect').addEventListener('change', updateNewStageVisibility);
 
+    // Client-side table sorting — no server round-trip needed
+    document.querySelectorAll('.sort-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const sortKey = this.dataset.sort;
+            const tbody = document.querySelector('table tbody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort(function(a, b) {
+                if (sortKey === 'name') {
+                    return a.dataset.name.localeCompare(b.dataset.name);
+                } else if (sortKey === 'amount_asc') {
+                    return parseFloat(a.dataset.amount) - parseFloat(b.dataset.amount);
+                } else if (sortKey === 'amount_desc') {
+                    return parseFloat(b.dataset.amount) - parseFloat(a.dataset.amount);
+                }
+                return 0;
+            });
+            rows.forEach(function(row) { tbody.appendChild(row); });
+
+            document.querySelectorAll('.sort-btn').forEach(function(b) {
+                b.classList.remove('btn-primary');
+                b.classList.add('btn-outline-secondary');
+            });
+            this.classList.add('btn-primary');
+            this.classList.remove('btn-outline-secondary');
+        });
+    });
+
+    // SSE for real-time notifications
     const evtSource = new EventSource('/notifications/stream');
     evtSource.addEventListener('notification', function(e) {
         const data = JSON.parse(e.data);
@@ -270,6 +308,7 @@
         new bootstrap.Toast(document.getElementById('notifToast'), { delay: 6000 }).show();
     });
     evtSource.onerror = function() { evtSource.close(); };
+    window.addEventListener('beforeunload', function() { evtSource.close(); });
 </script>
 </body>
 </html>

@@ -14,6 +14,9 @@ public interface InvestmentRepository extends JpaRepository<InvestmentEntity, Lo
 
     List<InvestmentEntity> findByStatus(InvestmentStatus status);
 
+    /*
+    * Calculate the total deployed amount for a given portfolio, excluding investments with specified statuses (e.g., EXITED, WRITTEN_OFF).
+    * */
     @Query("SELECT COALESCE(SUM(i.investedAmount), 0) FROM InvestmentEntity i WHERE i.portfolio.id = :portfolioId AND i.status NOT IN :excludedStatuses")
     BigDecimal sumDeployedAmountByPortfolioId(@Param("portfolioId") Long portfolioId,
                                               @Param("excludedStatuses") Collection<InvestmentStatus> excludedStatuses);

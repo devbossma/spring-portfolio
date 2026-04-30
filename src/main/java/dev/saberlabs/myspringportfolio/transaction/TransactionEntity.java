@@ -15,6 +15,13 @@ import java.time.LocalDateTime;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "transactions")
+/*
+ * Abstract base entity for all transaction types in the system.
+ * Uses JPA JOINED inheritance — each subtype (FundTransactionEntity, InvestmentTransactionEntity)
+ * has its own table that joins to this base "transactions" table via the shared UUID primary key.
+ * Stores common fields: UUID id, amount, owning user, timestamp, and notes.
+ * Subclasses must implement getTransactionCategory() to identify their domain.
+ * */
 public abstract class TransactionEntity {
 
     @Id

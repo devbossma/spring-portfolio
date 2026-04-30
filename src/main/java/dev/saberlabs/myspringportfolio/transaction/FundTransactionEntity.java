@@ -14,6 +14,12 @@ import java.util.Arrays;
 @Entity
 @Table(name = "fund_transactions")
 @NoArgsConstructor
+/*
+ * JPA entity representing a single fund-level financial transaction.
+ * Extends TransactionEntity for shared fields (id, amount, user, createdAt, notes).
+ * Each record captures a DEPOSIT, WITHDRAWAL, or WRITE_OFF operation against a fund.
+ * The validated setter ensures only recognized FundTransactionType values are persisted.
+ * */
 public class FundTransactionEntity extends TransactionEntity {
 
     @Enumerated(EnumType.STRING)
@@ -25,6 +31,12 @@ public class FundTransactionEntity extends TransactionEntity {
     private FundEntity fund;
 
 
+    /*
+     * Sets the transaction type after validating it is a recognized FundTransactionType value.
+     * Params:
+     * - type: The FundTransactionType to assign. Throws IllegalArgumentException if null or invalid.
+     * Returns: void.
+     * */
     public void setType(FundTransactionType type) {
         if (type == null) {
             throw new IllegalArgumentException(
@@ -42,6 +54,13 @@ public class FundTransactionEntity extends TransactionEntity {
     }
 
 
+    /*
+     * Validates that a WITHDRAWAL transaction does not exceed the available fund balance.
+     * Only runs the check if the transaction type is WITHDRAWAL.
+     * Params:
+     * - fundBalance: The current available balance in the fund.
+     * Returns: void. Throws IllegalStateException if the withdrawal amount exceeds the balance.
+     * */
     public void validateWithdrawal(BigDecimal fundBalance) {
         if (this.type == FundTransactionType.WITHDRAWAL) {
             if (getAmount().compareTo(fundBalance) > 0) {
@@ -53,6 +72,10 @@ public class FundTransactionEntity extends TransactionEntity {
         }
     }
 
+    /*
+     * Returns the category label for this transaction type, used for display and ledger reporting.
+     * Returns: "FUND".
+     * */
     @Override
     public String getTransactionCategory() {
         return "FUND";
