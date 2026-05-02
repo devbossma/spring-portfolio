@@ -238,25 +238,6 @@ public class InvestmentService {
         return investmentRepository.findById(id).orElseThrow();
     }
 
-
-    /*
-    * Permanently deletes a PENDING investment, cancels its scheduled activation, removes its BUY transaction,
-    * and recalculates portfolio totals. Only PENDING investments may be deleted; active or closed investments
-    * must be exited or written off instead.
-    * */
-    @Transactional
-    public void deleteInvestment(Long id) {
-        InvestmentEntity investment = investmentRepository.findById(id).orElseThrow();
-        if (!investment.isPending()) {
-            throw new IllegalStateException("Only pending investments can be deleted.");
-        }
-        investmentActivationService.cancelActivation(id);
-        PortfolioEntity portfolio = investment.getPortfolio();
-        investmentTransactionRepository.deleteByInvestment(investment);
-        investmentRepository.delete(investment);
-        portfolioService.updatePortfolioTotals(portfolio);
-    }
-
     /*
     * Updates the details of an existing investment and recalculates the portfolio totals accordingly.
     * Params:
@@ -271,5 +252,27 @@ public class InvestmentService {
     public void updateInvestment(InvestmentEntity investment) {
         investmentRepository.save(investment);
         portfolioService.updatePortfolioTotals(investment.getPortfolio());
+    }
+
+
+    /*
+     * Permanently deletes a PENDING investment, cancels its scheduled activation, removes its BUY transaction,
+     * and recalculates portfolio totals. Only PENDING investments may be deleted; active or closed investments
+     * must be exited or written off instead.
+     * */
+    @Transactional
+    public void deleteInvestment(Long id) {
+        InvestmentEntity investment = investmentRepository.findById(id).orElseThrow();
+        if (!investment.isPending()) {
+            throw new IllegalStateException("Only pending investments can be deleted.");
+        }
+        investmentActivationService.cancelActivation(id);
+        PortfolioEntity portfolio = investment.getPortfolio();
+        // Remove from portfolio's L1-cached collection so the cascade save inside
+        // updatePortfolioTotals doesn't re-persist the entity we are about to delete.
+        portfolio.getInvestments().remove(investment);
+        investmentTransactionRepository.deleteByInvestment(investment);
+        investmentRepository.delete(investment);
+        portfolioService.updatePortfolioTotals(portfolio);
     }
 }
