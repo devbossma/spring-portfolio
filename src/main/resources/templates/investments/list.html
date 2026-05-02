@@ -69,6 +69,12 @@
         </div>
     </div>
 
+    <div th:if="${investmentSuccess}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <i data-feather="check-circle" width="16" height="16" style="margin-right:6px;"></i>
+        <span th:text="${investmentSuccess}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
     <div th:if="${investmentError}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
         <i data-feather="alert-circle" width="16" height="16" style="margin-right:6px;"></i>
         <span th:text="${investmentError}"></span>
@@ -202,6 +208,10 @@
                                     class="btn btn-outline-danger btn-sm"
                                     data-bs-toggle="modal"
                                     th:data-bs-target="'#exitModal-' + ${inv.id}">Exit</button>
+                            <button th:if="${inv.pending}"
+                                    class="btn btn-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    th:data-bs-target="'#deleteModal-' + ${inv.id}">Delete</button>
                         </td>
                     </tr>
                 </tbody>
@@ -233,6 +243,32 @@
                         <button type="submit" class="btn btn-danger btn-sm">Confirm Exit</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modals -->
+<div th:each="inv : ${investments}">
+    <div th:if="${inv.pending}" class="modal fade" th:id="'deleteModal-' + ${inv.id}" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Delete: <span th:text="${inv.name}"></span></h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-2">Invested amount: <strong>$<span th:text="${#numbers.formatDecimal(inv.investedAmount, 1, 'COMMA', 2, 'POINT')}"></span></strong></p>
+                    <div class="alert alert-danger py-2 small mb-0">
+                        This will permanently delete the pending investment. This action cannot be undone.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <form th:action="@{/investments/{id}/delete(id=${inv.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Confirm Delete</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

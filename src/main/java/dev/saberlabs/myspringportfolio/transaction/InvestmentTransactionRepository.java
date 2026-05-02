@@ -1,5 +1,6 @@
 package dev.saberlabs.myspringportfolio.transaction;
 
+import dev.saberlabs.myspringportfolio.investment.InvestmentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,6 @@ import java.util.List;
 public interface InvestmentTransactionRepository extends JpaRepository<InvestmentTransactionEntity, String> {
 
     List<InvestmentTransactionEntity> findByInvestmentPortfolioIdOrderByCreatedAtDesc(Long portfolioId);
+
+    void deleteByInvestment(InvestmentEntity investment);
 }

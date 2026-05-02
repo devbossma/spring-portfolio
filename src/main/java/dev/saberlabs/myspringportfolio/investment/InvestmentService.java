@@ -240,6 +240,24 @@ public class InvestmentService {
 
 
     /*
+    * Permanently deletes a PENDING investment, cancels its scheduled activation, removes its BUY transaction,
+    * and recalculates portfolio totals. Only PENDING investments may be deleted; active or closed investments
+    * must be exited or written off instead.
+    * */
+    @Transactional
+    public void deleteInvestment(Long id) {
+        InvestmentEntity investment = investmentRepository.findById(id).orElseThrow();
+        if (!investment.isPending()) {
+            throw new IllegalStateException("Only pending investments can be deleted.");
+        }
+        investmentActivationService.cancelActivation(id);
+        PortfolioEntity portfolio = investment.getPortfolio();
+        investmentTransactionRepository.deleteByInvestment(investment);
+        investmentRepository.delete(investment);
+        portfolioService.updatePortfolioTotals(portfolio);
+    }
+
+    /*
     * Updates the details of an existing investment and recalculates the portfolio totals accordingly.
     * Params:
     * - investment: An InvestmentEntity object containing the updated details of the investment, including its ID, which is used to identify which investment to update in the database.

@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 
 @Service
 /*
@@ -26,6 +28,8 @@ public class InvestmentActivationService {
 
     // Delay in seconds before an investment is activated after creation, set to 120 seconds (2 minutes).
     static final long ACTIVATION_DELAY_SECONDS = 120;
+
+    private final ConcurrentHashMap<Long, ScheduledFuture<?>> pendingActivations = new ConcurrentHashMap<>();
 
     private final TaskScheduler taskScheduler;
     private final InvestmentRepository investmentRepository;
@@ -60,7 +64,20 @@ public class InvestmentActivationService {
     * Returns: None (void). This method schedules a task to run at the specified time and does not return a value.
     * */
     public void scheduleActivation(Long investmentId, Long userId, Instant activateAt) {
-        taskScheduler.schedule(() -> activate(investmentId, userId), activateAt);
+        ScheduledFuture<?> future = taskScheduler.schedule(() -> {
+            pendingActivations.remove(investmentId);
+            activate(investmentId, userId);
+        }, activateAt);
+        if (future != null) {
+            pendingActivations.put(investmentId, future);
+        }
+    }
+
+    public void cancelActivation(Long investmentId) {
+        ScheduledFuture<?> future = pendingActivations.remove(investmentId);
+        if (future != null) {
+            future.cancel(false);
+        }
     }
 
     /*
