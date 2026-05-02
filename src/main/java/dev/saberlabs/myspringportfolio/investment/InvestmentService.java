@@ -272,9 +272,6 @@ public class InvestmentService {
 
         investmentActivationService.cancelActivation(id);
         PortfolioEntity portfolio = investment.getPortfolio();
-        // Remove from portfolio's L1-cached collection so the cascade save inside
-        // updatePortfolioTotals doesn't re-persist the entity we are about to delete.
-        portfolio.getInvestments().remove(investment);
 
         if (investment.isPending()) {
             // Pending investments have no settled financial history — delete transactions too.
@@ -284,6 +281,11 @@ public class InvestmentService {
             investmentTransactionRepository.detachFromInvestment(investment);
         }
 
+        // Remove from portfolio's L1-cached collection AFTER the transaction SQL runs.
+        // Doing this earlier would mark the investment as an orphan; Hibernate would then
+        // fire DELETE investments during the auto-flush that precedes the @Modifying query,
+        // hitting the FK constraint before the transaction rows are gone.
+        portfolio.getInvestments().remove(investment);
         investmentRepository.delete(investment);
         portfolioService.updatePortfolioTotals(portfolio);
     }
