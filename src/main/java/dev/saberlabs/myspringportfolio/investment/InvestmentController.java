@@ -82,18 +82,6 @@ public class InvestmentController {
         return "redirect:/investments/" + id;
     }
 
-    @PostMapping("/{id}/delete")
-    public String deleteInvestment(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            investmentService.deleteInvestment(id);
-            redirectAttributes.addFlashAttribute("investmentSuccess", "Investment deleted successfully.");
-        } catch (IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("investmentError", e.getMessage());
-            return "redirect:/investments/" + id;
-        }
-        return "redirect:/investments";
-    }
-
     @GetMapping("/{id}")
     public String viewInvestment(@PathVariable Long id, Model model) {
         InvestmentEntity investment = investmentService.getInvestmentById(id);
@@ -137,5 +125,18 @@ public class InvestmentController {
 
         investmentService.updateInvestment(existing);
         return "redirect:/investments/" + id;
+    }
+
+
+    @PostMapping("/{id}/delete")
+    public String deleteInvestment(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            investmentService.deleteInvestment(id);
+            redirectAttributes.addFlashAttribute("investmentSuccess", "Investment deleted successfully.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("investmentError", e.getMessage());
+            return "redirect:/investments/" + id;
+        }
+        return "redirect:/investments";
     }
 }

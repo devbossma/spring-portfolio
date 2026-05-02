@@ -19,10 +19,13 @@ public interface InvestmentTransactionRepository extends JpaRepository<Investmen
 
     List<InvestmentTransactionEntity> findByInvestmentPortfolioIdOrderByCreatedAtDesc(Long portfolioId);
 
-    void deleteByInvestment(InvestmentEntity investment);
+    // Bulk DELETE — executes immediately as SQL so the FK is clear before the investment row is removed.
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM InvestmentTransactionEntity t WHERE t.investment = :investment")
+    void deleteByInvestment(@Param("investment") InvestmentEntity investment);
 
     // Nulls out the investment FK so transactions survive as an audit trail after the investment is deleted.
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE InvestmentTransactionEntity t SET t.investment = null WHERE t.investment = :investment")
     void detachFromInvestment(@Param("investment") InvestmentEntity investment);
 }
