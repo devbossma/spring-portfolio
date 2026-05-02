@@ -35,13 +35,13 @@ public class TransactionController {
      * Returns: The "transactions/list" view.
      * */
     public String list(@AuthenticationPrincipal UserEntity currentUser, Model model) {
-        Long fundId      = currentUser.getPortfolio().getFund().getId();
-        Long portfolioId = currentUser.getPortfolio().getId();
+        Long fundId = currentUser.getPortfolio().getFund().getId();
+        Long userId = currentUser.getId();
 
         model.addAttribute("fundTransactions",
                 fundTransactionRepository.findByFundIdOrderByCreatedAtDesc(fundId));
         model.addAttribute("investmentTransactions",
-                investmentTransactionRepository.findByPortfolioIdOrderByCreatedAtDesc(portfolioId));
+                investmentTransactionRepository.findByUserIdOrderByCreatedAtDesc(userId));
         return "transactions/list";
     }
 }
