@@ -30,7 +30,7 @@ public class InvestmentTransactionEntity extends TransactionEntity {
     private InvestmentTransactionType type;
 
     @ManyToOne
-    @JoinColumn(name = "investment_id", nullable = false)
+    @JoinColumn(name = "investment_id", nullable = true)
     private InvestmentEntity investment;
 
     @Column(precision = 19, scale = 2)

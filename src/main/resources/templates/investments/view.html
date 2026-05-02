@@ -65,7 +65,7 @@
             <button th:if="${investment.active}"
                     class="btn btn-danger btn-sm"
                     data-bs-toggle="modal" data-bs-target="#exitModal">Exit Investment</button>
-            <button th:if="${investment.pending}"
+            <button th:if="${investment.pending or investment.exited or investment.failed}"
                     class="btn btn-danger btn-sm"
                     data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
         </div>
@@ -211,8 +211,8 @@
     </div>
 </div>
 
-<!-- Delete Modal -->
-<div th:if="${investment.pending}" class="modal fade" id="deleteModal" tabindex="-1">
+<!-- Delete Modal (PENDING, EXITED, WRITTEN_OFF) -->
+<div th:if="${investment.pending or investment.exited or investment.failed}" class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
@@ -221,8 +221,11 @@
             </div>
             <div class="modal-body">
                 <p class="small text-muted mb-2">Invested amount: <strong>$<span th:text="${#numbers.formatDecimal(investment.investedAmount, 1, 'COMMA', 2, 'POINT')}"></span></strong></p>
-                <div class="alert alert-danger py-2 small mb-0">
-                    This will permanently delete the pending investment. This action cannot be undone.
+                <div th:if="${investment.pending}" class="alert alert-danger py-2 small mb-0">
+                    This will permanently delete the investment and its transaction record. This action cannot be undone.
+                </div>
+                <div th:if="${investment.exited or investment.failed}" class="alert alert-warning py-2 small mb-0">
+                    The investment record will be removed. Transactions are preserved in the ledger for audit purposes.
                 </div>
             </div>
             <div class="modal-footer">

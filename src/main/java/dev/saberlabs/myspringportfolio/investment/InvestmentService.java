@@ -256,22 +256,34 @@ public class InvestmentService {
 
 
     /*
-     * Permanently deletes a PENDING investment, cancels its scheduled activation, removes its BUY transaction,
-     * and recalculates portfolio totals. Only PENDING investments may be deleted; active or closed investments
-     * must be exited or written off instead.
+     * Deletes an investment record. Behaviour varies by status:
+     * - PENDING: also deletes transactions (no financial record worth keeping).
+     * - EXITED / WRITTEN_OFF: nulls out the transaction FK so the audit trail is preserved.
+     * - ACTIVE: rejected — user must Exit or Write-Off first.
      * */
     @Transactional
     public void deleteInvestment(Long id) {
         InvestmentEntity investment = investmentRepository.findById(id).orElseThrow();
-        if (!investment.isPending()) {
-            throw new IllegalStateException("Only pending investments can be deleted.");
+
+        if (investment.isActive()) {
+            throw new IllegalStateException(
+                    "Active investments cannot be deleted. Please Exit or Write-Off this investment first.");
         }
+
         investmentActivationService.cancelActivation(id);
         PortfolioEntity portfolio = investment.getPortfolio();
         // Remove from portfolio's L1-cached collection so the cascade save inside
         // updatePortfolioTotals doesn't re-persist the entity we are about to delete.
         portfolio.getInvestments().remove(investment);
-        investmentTransactionRepository.deleteByInvestment(investment);
+
+        if (investment.isPending()) {
+            // Pending investments have no settled financial history — delete transactions too.
+            investmentTransactionRepository.deleteByInvestment(investment);
+        } else {
+            // Exited / written-off: detach transactions so they survive as an audit trail.
+            investmentTransactionRepository.detachFromInvestment(investment);
+        }
+
         investmentRepository.delete(investment);
         portfolioService.updatePortfolioTotals(portfolio);
     }

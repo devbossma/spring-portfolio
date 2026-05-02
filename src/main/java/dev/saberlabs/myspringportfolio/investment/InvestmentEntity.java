@@ -55,7 +55,7 @@ public class InvestmentEntity {
     private RiskLevel riskLevel;
 
 
-    @OneToMany(mappedBy = "investment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "investment", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     private List<InvestmentTransactionEntity> transactions = new ArrayList<>();
 
 
