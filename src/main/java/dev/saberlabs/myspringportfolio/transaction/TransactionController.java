@@ -41,7 +41,7 @@ public class TransactionController {
         model.addAttribute("fundTransactions",
                 fundTransactionRepository.findByFundIdOrderByCreatedAtDesc(fundId));
         model.addAttribute("investmentTransactions",
-                investmentTransactionRepository.findByInvestmentPortfolioIdOrderByCreatedAtDesc(portfolioId));
+                investmentTransactionRepository.findByPortfolioIdOrderByCreatedAtDesc(portfolioId));
         return "transactions/list";
     }
 }

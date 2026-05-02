@@ -139,9 +139,12 @@
                                 <td class="text-muted small"
                                     th:text="${#temporals.format(tx.createdAt, 'dd MMM yyyy, HH:mm')}">—</td>
                                 <td>
-                                    <a th:href="@{/investments/{id}(id=${tx.investment.id})}"
+                                    <a th:if="${tx.investment != null}"
+                                       th:href="@{/investments/{id}(id=${tx.investment.id})}"
                                        th:text="${tx.investment.name}"
                                        class="text-decoration-none fw-semibold">—</a>
+                                    <span th:if="${tx.investment == null}"
+                                          class="text-muted small fst-italic">Deleted investment</span>
                                 </td>
                                 <td>
                                     <span th:class="${'badge ' +

@@ -17,7 +17,13 @@ import java.util.List;
  * */
 public interface InvestmentTransactionRepository extends JpaRepository<InvestmentTransactionEntity, String> {
 
-    List<InvestmentTransactionEntity> findByInvestmentPortfolioIdOrderByCreatedAtDesc(Long portfolioId);
+    // Includes orphaned transactions (investment_id = NULL) whose user owns the same portfolio,
+    // so that records for deleted EXITED/WRITTEN_OFF investments still appear in the ledger.
+    @Query("SELECT t FROM InvestmentTransactionEntity t " +
+           "WHERE t.investment.portfolio.id = :portfolioId " +
+           "   OR (t.investment IS NULL AND t.user.portfolio.id = :portfolioId) " +
+           "ORDER BY t.createdAt DESC")
+    List<InvestmentTransactionEntity> findByPortfolioIdOrderByCreatedAtDesc(@Param("portfolioId") Long portfolioId);
 
     // Bulk DELETE — executes immediately as SQL so the FK is clear before the investment row is removed.
     @Modifying
