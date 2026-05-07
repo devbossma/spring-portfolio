@@ -1,57 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transactions – My Portfolio</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/sidebar.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css">
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.js"></script>
+    <th:block th:replace="~{layout/base :: pageHead('Transactions – My Portfolio')}"></th:block>
 </head>
 <body>
 
-<!-- ── Sidebar ─────────────────────────────────────────── -->
-<aside class="sidebar">
-    <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">
-            <i data-feather="bar-chart-2" width="16" height="16" stroke="#7eb0ff"></i>
-        </div>
-        <div>
-            <div class="sidebar-brand-name">My Portfolio</div>
-            <div class="sidebar-brand-sub">fund management</div>
-        </div>
-    </div>
+<th:block th:replace="~{layout/base :: sidebar}"></th:block>
 
-    <nav class="sidebar-nav">
-        <div class="sidebar-section-label">Navigation</div>
-        <a href="/portfolio"    class="sidebar-link"><i data-feather="grid"></i> Dashboard</a>
-        <a href="/investments"  class="sidebar-link"><i data-feather="trending-up"></i> Investments</a>
-        <a href="/transactions" class="sidebar-link active"><i data-feather="list"></i> Transactions</a>
-    </nav>
-
-    <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="sidebar-user-avatar"><i data-feather="user"></i></div>
-            <div>
-                <div class="sidebar-user-name" sec:authentication="name">User</div>
-                <div class="sidebar-user-role">Portfolio Manager</div>
-            </div>
-        </div>
-        <form th:action="@{/auth/logout}" method="post">
-            <button type="submit" class="sidebar-logout-btn">
-                <i data-feather="log-out"></i> Sign Out
-            </button>
-        </form>
-    </div>
-</aside>
-
-<!-- ── Page Content ─────────────────────────────────────── -->
 <div class="page-wrapper">
 
     <div class="page-header">
@@ -167,37 +122,10 @@
         </div>
 
     </div>
+
 </div>
 
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999">
-    <div id="notifToast" class="toast align-items-center text-bg-success border-0" role="alert">
-        <div class="d-flex">
-            <div class="toast-body">
-                <strong id="notifHeader"></strong><br>
-                <span id="notifContent"></span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    feather.replace();
-    NProgress.done();
-    document.querySelectorAll('.sidebar-link').forEach(function(link) {
-        link.addEventListener('click', function() { NProgress.start(); });
-    });
-
-    const evtSource = new EventSource('/notifications/stream');
-    evtSource.addEventListener('notification', function(e) {
-        const data = JSON.parse(e.data);
-        document.getElementById('notifHeader').textContent = data.header;
-        document.getElementById('notifContent').textContent = data.content;
-        new bootstrap.Toast(document.getElementById('notifToast'), { delay: 6000 }).show();
-    });
-    evtSource.onerror = function() { evtSource.close(); };
-    window.addEventListener('beforeunload', function() { evtSource.close(); });
-</script>
+<th:block th:replace="~{layout/base :: sseToast}"></th:block>
+<th:block th:replace="~{layout/base :: commonScripts}"></th:block>
 </body>
 </html>

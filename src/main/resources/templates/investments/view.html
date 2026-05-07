@@ -1,61 +1,18 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${investment.name} + ' – My Portfolio'">Investment – My Portfolio</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/sidebar.css">
-    <script src="https://unpkg.com/feather-icons"></script>
+    <th:block th:replace="~{layout/base :: pageHead(|${investment.name} – My Portfolio|)}"></th:block>
 </head>
 <body>
 
-<!-- ── Sidebar ─────────────────────────────────────────── -->
-<aside class="sidebar">
-    <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">
-            <i data-feather="bar-chart-2" width="16" height="16" stroke="#7eb0ff"></i>
-        </div>
-        <div>
-            <div class="sidebar-brand-name">My Portfolio</div>
-            <div class="sidebar-brand-sub">fund management</div>
-        </div>
-    </div>
+<th:block th:replace="~{layout/base :: sidebar}"></th:block>
 
-    <nav class="sidebar-nav">
-        <div class="sidebar-section-label">Navigation</div>
-        <a href="/portfolio"    class="sidebar-link"><i data-feather="grid"></i> Dashboard</a>
-        <a href="/investments"  class="sidebar-link active"><i data-feather="trending-up"></i> Investments</a>
-        <a href="/transactions" class="sidebar-link"><i data-feather="list"></i> Transactions</a>
-    </nav>
-
-    <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="sidebar-user-avatar"><i data-feather="user"></i></div>
-            <div>
-                <div class="sidebar-user-name" sec:authentication="name">User</div>
-                <div class="sidebar-user-role">Portfolio Manager</div>
-            </div>
-        </div>
-        <form th:action="@{/auth/logout}" method="post">
-            <button type="submit" class="sidebar-logout-btn">
-                <i data-feather="log-out"></i> Sign Out
-            </button>
-        </form>
-    </div>
-</aside>
-
-<!-- ── Page Content ─────────────────────────────────────── -->
 <div class="page-wrapper">
 
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <a href="/investments" class="text-muted small text-decoration-none">&larr; All Investments</a>
-            <h1 class="page-header mb-0 mt-1" style="margin-bottom:0;" th:text="${investment.name}">Investment Name</h1>
+            <h1 class="page-header mb-0 mt-1" th:text="${investment.name}">Investment Name</h1>
         </div>
         <div class="d-flex gap-2">
             <a th:if="${investment.active}" th:href="@{/investments/{id}/edit(id=${investment.id})}" class="btn btn-outline-secondary btn-sm">Edit</a>
@@ -187,13 +144,22 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted small">Current value per unit: $<span th:text="${#numbers.formatDecimal(investment.currentValue, 1, 'COMMA', 2, 'POINT')}">0.00</span></p>
-                    <form th:action="@{/investments/update-value}" method="post" class="d-flex gap-2">
+                    <form th:action="@{/investments/update-value}" method="post"
+                          id="updateValueForm" novalidate>
                         <input type="hidden" name="id" th:value="${investment.id}">
-                        <input type="number" step="0.01" min="0" name="currentValue"
-                               class="form-control form-control-sm"
-                               th:value="${investment.currentValue}"
-                               placeholder="New price per unit" required>
-                        <button type="submit" class="btn btn-success btn-sm text-nowrap">Update</button>
+                        <div class="d-flex gap-2 align-items-start">
+                            <div class="flex-grow-1">
+                                <input type="number" step="0.01" min="0" name="currentValue"
+                                       class="form-control form-control-sm" id="updateCurrentValue"
+                                       th:value="${investment.currentValue}"
+                                       placeholder="New price per unit" required>
+                                <div class="invalid-feedback"></div>
+                                <div id="updateZeroWarning" class="form-text text-warning mt-1" style="display:none;">
+                                    $0 current value — if this is a total loss, consider using Write Off instead.
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-sm text-nowrap">Update</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -209,9 +175,10 @@
         </div>
 
     </div>
+
 </div>
 
-<!-- Delete Modal (PENDING, EXITED, WRITTEN_OFF) -->
+<!-- Delete Modal -->
 <div th:if="${investment.pending or investment.exited or investment.failed}" class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -274,13 +241,15 @@
                 <h6 class="modal-title">Exit: <span th:text="${investment.name}"></span></h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form th:action="@{/investments/exit}" method="post">
+            <form th:action="@{/investments/exit}" method="post" id="viewExitForm" novalidate>
                 <div class="modal-body">
                     <input type="hidden" name="id" th:value="${investment.id}">
                     <label class="form-label small">Exit Value ($)</label>
-                    <input type="number" step="0.01" name="exitValue"
-                           class="form-control" th:value="${investment.currentTotalValue}" required>
-                    <div class="form-text">Current: $<span th:text="${#numbers.formatDecimal(investment.currentTotalValue, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                    <input type="number" step="0.01" min="0.01" name="exitValue"
+                           class="form-control" id="viewExitValue"
+                           th:value="${investment.currentTotalValue}" required>
+                    <div class="invalid-feedback"></div>
+                    <div class="form-text mt-1">Current: $<span th:text="${#numbers.formatDecimal(investment.currentTotalValue, 1, 'COMMA', 2, 'POINT')}"></span></div>
                     <div class="alert alert-warning mt-3 py-2 small">This action cannot be undone.</div>
                 </div>
                 <div class="modal-footer">
@@ -292,29 +261,8 @@
     </div>
 </div>
 
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999">
-    <div id="notifToast" class="toast align-items-center text-bg-success border-0" role="alert">
-        <div class="d-flex">
-            <div class="toast-body">
-                <strong id="notifHeader"></strong><br>
-                <span id="notifContent"></span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    feather.replace();
-    const evtSource = new EventSource('/notifications/stream');
-    evtSource.addEventListener('notification', function(e) {
-        const data = JSON.parse(e.data);
-        document.getElementById('notifHeader').textContent = data.header;
-        document.getElementById('notifContent').textContent = data.content;
-        new bootstrap.Toast(document.getElementById('notifToast'), { delay: 6000 }).show();
-    });
-    evtSource.onerror = function() { evtSource.close(); };
-</script>
+<th:block th:replace="~{layout/base :: sseToast}"></th:block>
+<th:block th:replace="~{layout/base :: commonScripts}"></th:block>
+<script src="/js/investments-view.js"></script>
 </body>
 </html>

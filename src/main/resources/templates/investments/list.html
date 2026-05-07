@@ -1,57 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investments – My Portfolio</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/sidebar.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css">
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.js"></script>
+    <th:block th:replace="~{layout/base :: pageHead('Investments – My Portfolio')}"></th:block>
 </head>
 <body>
 
-<!-- ── Sidebar ─────────────────────────────────────────── -->
-<aside class="sidebar">
-    <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">
-            <i data-feather="bar-chart-2" width="16" height="16" stroke="#7eb0ff"></i>
-        </div>
-        <div>
-            <div class="sidebar-brand-name">My Portfolio</div>
-            <div class="sidebar-brand-sub">fund management</div>
-        </div>
-    </div>
+<th:block th:replace="~{layout/base :: sidebar}"></th:block>
 
-    <nav class="sidebar-nav">
-        <div class="sidebar-section-label">Navigation</div>
-        <a href="/portfolio"    class="sidebar-link"><i data-feather="grid"></i> Dashboard</a>
-        <a href="/investments"  class="sidebar-link active"><i data-feather="trending-up"></i> Investments</a>
-        <a href="/transactions" class="sidebar-link"><i data-feather="list"></i> Transactions</a>
-    </nav>
-
-    <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="sidebar-user-avatar"><i data-feather="user"></i></div>
-            <div>
-                <div class="sidebar-user-name" sec:authentication="name">User</div>
-                <div class="sidebar-user-role">Portfolio Manager</div>
-            </div>
-        </div>
-        <form th:action="@{/auth/logout}" method="post">
-            <button type="submit" class="sidebar-logout-btn">
-                <i data-feather="log-out"></i> Sign Out
-            </button>
-        </form>
-    </div>
-</aside>
-
-<!-- ── Page Content ─────────────────────────────────────── -->
 <div class="page-wrapper">
 
     <div class="page-header d-flex justify-content-between align-items-start">
@@ -87,15 +42,21 @@
             <h6 class="mb-0">New Investment</h6>
         </div>
         <div class="card-body">
-            <form th:action="@{/investments}" method="post">
-                <div class="row g-3">
-                    <div class="col-md-3">
+            <form th:action="@{/investments}" method="post" id="addInvestmentForm"
+                  th:data-dry-powder="${dryPowder}" novalidate>
+
+                <!-- Row 1: Identity -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
                         <label class="form-label small text-muted">Name</label>
-                        <input type="text" name="name" class="form-control" placeholder="e.g. Acme Corp" required>
+                        <input type="text" id="newName" name="name" class="form-control"
+                               placeholder="e.g. Acme Corp" required>
+                        <div class="invalid-feedback"></div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label small text-muted">Type</label>
                         <select name="type" id="newTypeSelect" class="form-select" required>
+                            <option value="">— Select type —</option>
                             <option value="STOCK">Stock</option>
                             <option value="PRIVATE">Private</option>
                             <option value="ETF">ETF</option>
@@ -103,18 +64,12 @@
                             <option value="CRYPTO">Crypto</option>
                             <option value="REAL_ESTATE">Real Estate</option>
                         </select>
+                        <div class="invalid-feedback"></div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small text-muted">Price per Unit ($)</label>
-                        <input type="number" step="0.01" min="0.01" name="pricePerUnit" class="form-control" placeholder="0.00" required>
-                    </div>
-                    <div class="col-md-1">
-                        <label class="form-label small text-muted">Qty</label>
-                        <input type="number" name="quantity" class="form-control" value="1" min="1" required>
-                    </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label small text-muted">Sector</label>
-                        <select name="sector" class="form-select">
+                        <select name="sector" id="newSector" class="form-select" required>
+                            <option value="">— Select sector —</option>
                             <option value="TECHNOLOGY">Technology</option>
                             <option value="HEALTHCARE">Healthcare</option>
                             <option value="FINANCE">Finance</option>
@@ -127,22 +82,39 @@
                             <option value="REAL_ESTATE">Real Estate</option>
                             <option value="COMMUNICATION_SERVICES">Communication Services</option>
                         </select>
+                        <div class="invalid-feedback"></div>
                     </div>
-                    <div class="col-md-1">
-                        <label class="form-label small text-muted">Risk</label>
-                        <select name="riskLevel" class="form-select">
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Risk Level</label>
+                        <select name="riskLevel" id="newRiskLevel" class="form-select" required>
+                            <option value="">— Select —</option>
                             <option value="LOW">Low</option>
                             <option value="MEDIUM">Medium</option>
                             <option value="HIGH">High</option>
                             <option value="VERY_HIGH">Very High</option>
                         </select>
+                        <div class="invalid-feedback"></div>
                     </div>
-                    <div class="col-md-1 d-flex align-items-end">
-                        <button type="submit" class="btn btn-success w-100">Add</button>
+                </div>
+
+                <!-- Row 2: Financial details + Stage -->
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Price per Unit ($)</label>
+                        <input type="number" step="0.01" min="0.01" id="newPricePerUnit" name="pricePerUnit"
+                               class="form-control" placeholder="0.00" required>
+                        <div class="invalid-feedback"></div>
                     </div>
-                    <div class="col-md-3 d-none" id="newStageWrapper">
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Quantity</label>
+                        <input type="number" step="1" min="1" id="newQuantity" name="quantity"
+                               class="form-control" value="1" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-4 d-none" id="newStageWrapper">
                         <label class="form-label small text-muted">Stage <span class="text-muted">(Private only)</span></label>
                         <select name="stage" id="newStageSelect" class="form-select" disabled>
+                            <option value="">— Select stage —</option>
                             <option value="PRE_SEED">Pre-Seed</option>
                             <option value="SEED">Seed</option>
                             <option value="SERIES_A">Series A</option>
@@ -151,8 +123,26 @@
                             <option value="GROWTH">Growth</option>
                             <option value="PUBLIC">Public</option>
                         </select>
+                        <div class="invalid-feedback"></div>
                     </div>
                 </div>
+
+                <!-- Action bar -->
+                <div class="border-top mt-3 pt-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small">
+                            Estimated investment:
+                            <strong id="newInvestedPreview" class="text-primary ms-1">$0.00</strong>
+                            <span class="text-muted ms-2">·</span>
+                            <span class="text-muted ms-1">Available:
+                                <strong th:text="${'$' + #numbers.formatDecimal(dryPowder, 1, 'COMMA', 2, 'POINT')}">$0.00</strong>
+                            </span>
+                        </div>
+                        <button type="submit" class="btn btn-success px-4">Add Investment</button>
+                    </div>
+                    <div id="dryPowderError" class="text-danger small mt-2" style="display:none;"></div>
+                </div>
+
             </form>
         </div>
     </div>
@@ -162,7 +152,6 @@
         <div th:if="${#lists.isEmpty(investments)}" class="card-body">
             <p class="text-muted mb-0">No investments yet. Use the form above to add one.</p>
         </div>
-
         <div th:if="${!#lists.isEmpty(investments)}" class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -230,13 +219,15 @@
                     <h6 class="modal-title">Exit: <span th:text="${inv.name}"></span></h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form th:action="@{/investments/exit}" method="post">
+                <form th:action="@{/investments/exit}" method="post" novalidate>
                     <div class="modal-body">
                         <input type="hidden" name="id" th:value="${inv.id}">
                         <label class="form-label small">Exit Value ($)</label>
-                        <input type="number" step="0.01" name="exitValue"
-                               class="form-control" th:value="${inv.currentTotalValue}" required>
-                        <div class="form-text">Current: $<span th:text="${#numbers.formatDecimal(inv.currentTotalValue, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                        <input type="number" step="0.01" min="0.01" name="exitValue"
+                               class="form-control exit-value-input"
+                               th:value="${inv.currentTotalValue}" required>
+                        <div class="invalid-feedback"></div>
+                        <div class="form-text mt-1">Current: $<span th:text="${#numbers.formatDecimal(inv.currentTotalValue, 1, 'COMMA', 2, 'POINT')}"></span></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
@@ -248,7 +239,7 @@
     </div>
 </div>
 
-<!-- Delete Modals (PENDING, EXITED, WRITTEN_OFF) -->
+<!-- Delete Modals -->
 <div th:each="inv : ${investments}">
     <div th:if="${inv.pending or inv.exited or inv.failed}" class="modal fade" th:id="'deleteModal-' + ${inv.id}" tabindex="-1">
         <div class="modal-dialog modal-sm">
@@ -277,77 +268,8 @@
     </div>
 </div>
 
-<!-- SSE Toast -->
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999">
-    <div id="notifToast" class="toast align-items-center text-bg-success border-0" role="alert">
-        <div class="d-flex">
-            <div class="toast-body">
-                <strong id="notifHeader"></strong><br>
-                <span id="notifContent"></span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    feather.replace();
-    NProgress.done();
-    document.querySelectorAll('.sidebar-link').forEach(function(link) {
-        link.addEventListener('click', function() { NProgress.start(); });
-    });
-
-    // Stage visibility for the new investment form
-    function updateNewStageVisibility() {
-        const type = document.getElementById('newTypeSelect').value;
-        const wrapper = document.getElementById('newStageWrapper');
-        const select = document.getElementById('newStageSelect');
-        const isPrivate = type === 'PRIVATE';
-        wrapper.classList.toggle('d-none', !isPrivate);
-        select.disabled = !isPrivate;
-    }
-    document.getElementById('newTypeSelect').addEventListener('change', updateNewStageVisibility);
-
-    // Client-side table sorting — no server round-trip needed
-    document.querySelectorAll('.sort-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const sortKey = this.dataset.sort;
-            const tbody = document.querySelector('table tbody');
-            if (!tbody) return;
-
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            rows.sort(function(a, b) {
-                if (sortKey === 'name') {
-                    return a.dataset.name.localeCompare(b.dataset.name);
-                } else if (sortKey === 'amount_asc') {
-                    return parseFloat(a.dataset.amount) - parseFloat(b.dataset.amount);
-                } else if (sortKey === 'amount_desc') {
-                    return parseFloat(b.dataset.amount) - parseFloat(a.dataset.amount);
-                }
-                return 0;
-            });
-            rows.forEach(function(row) { tbody.appendChild(row); });
-
-            document.querySelectorAll('.sort-btn').forEach(function(b) {
-                b.classList.remove('btn-primary');
-                b.classList.add('btn-outline-secondary');
-            });
-            this.classList.add('btn-primary');
-            this.classList.remove('btn-outline-secondary');
-        });
-    });
-
-    // SSE for real-time notifications
-    const evtSource = new EventSource('/notifications/stream');
-    evtSource.addEventListener('notification', function(e) {
-        const data = JSON.parse(e.data);
-        document.getElementById('notifHeader').textContent = data.header;
-        document.getElementById('notifContent').textContent = data.content;
-        new bootstrap.Toast(document.getElementById('notifToast'), { delay: 6000 }).show();
-    });
-    evtSource.onerror = function() { evtSource.close(); };
-    window.addEventListener('beforeunload', function() { evtSource.close(); });
-</script>
+<th:block th:replace="~{layout/base :: sseToast}"></th:block>
+<th:block th:replace="~{layout/base :: commonScripts}"></th:block>
+<script src="/js/investments-list.js"></script>
 </body>
 </html>

@@ -38,6 +38,7 @@ public class InvestmentController {
         }
         model.addAttribute("investments", investments);
         model.addAttribute("sort", sort);
+        model.addAttribute("dryPowder", currentUser.getPortfolio().getFund().getDryPowder());
         return "investments/list";
     }
 

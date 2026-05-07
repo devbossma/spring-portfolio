@@ -17,9 +17,7 @@ import java.util.List;
  * */
 public interface InvestmentTransactionRepository extends JpaRepository<InvestmentTransactionEntity, String> {
 
-    // Queries via user_id (base transactions table, never nulled) so that orphaned
-    // transactions — whose investment_id was set to NULL when the investment was deleted —
-    // are still returned alongside normal ones.
+    // Custom query to fetch all transactions for a given user, ordered by creation date descending.
     List<InvestmentTransactionEntity> findByUserIdOrderByCreatedAtDesc(Long userId);
 
     // Bulk DELETE — executes immediately as SQL so the FK is clear before the investment row is removed.
