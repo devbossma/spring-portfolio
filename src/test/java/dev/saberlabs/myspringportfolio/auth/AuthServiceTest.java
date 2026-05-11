@@ -40,22 +40,22 @@ class AuthServiceTest {
         return req;
     }
 
-    // ── registerUser ──────────────────────────────────────────────────────────
+    //  registerUser 
 
     @Test
     void registerUser_savesEncodedUserWithPortfolioAndFund_whenValid() {
-        when(userRepository.findByUsernameOrEmail("alice@example.com", "alice"))
+        when(userRepository.findByUsernameOrEmail("yassine@example.com", "Yassine"))
                 .thenReturn(Optional.empty());
         when(passwordEncoder.encode("secret")).thenReturn("hashed");
 
-        authService.registerUser(request("alice@example.com", "alice", "secret", "secret"));
+        authService.registerUser(request("yassine@example.com", "Yassine", "secret", "secret"));
 
         ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
         verify(userRepository).save(captor.capture());
         UserEntity saved = captor.getValue();
 
-        assertThat(saved.getEmail()).isEqualTo("alice@example.com");
-        assertThat(saved.getUsername()).isEqualTo("alice");
+        assertThat(saved.getEmail()).isEqualTo("yassine@example.com");
+        assertThat(saved.getUsername()).isEqualTo("Yassine");
         assertThat(saved.getPassword()).isEqualTo("hashed");
         assertThat(saved.getPortfolio()).isNotNull();
         assertThat(saved.getPortfolio().getFund()).isNotNull();
@@ -65,22 +65,22 @@ class AuthServiceTest {
 
     @Test
     void registerUser_throwsIllegalArgument_whenUsernameOrEmailAlreadyExists() {
-        when(userRepository.findByUsernameOrEmail("alice@example.com", "alice"))
+        when(userRepository.findByUsernameOrEmail("yassine@example.com", "Yassine"))
                 .thenReturn(Optional.of(new UserEntity()));
 
         assertThatThrownBy(() ->
-                authService.registerUser(request("alice@example.com", "alice", "secret", "secret")))
+                authService.registerUser(request("yassine@example.com", "Yassine", "secret", "secret")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("already exists");
     }
 
     @Test
     void registerUser_throwsIllegalArgument_whenPasswordsDoNotMatch() {
-        when(userRepository.findByUsernameOrEmail("alice@example.com", "alice"))
+        when(userRepository.findByUsernameOrEmail("yassine@example.com", "Yassine"))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
-                authService.registerUser(request("alice@example.com", "alice", "secret", "wrong")))
+                authService.registerUser(request("yassine@example.com", "Yassine", "secret", "wrong")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Passwords do not match");
     }

@@ -33,9 +33,9 @@ class InvestmentRepositoryTest {
         portfolio.setFund(fund);
 
         UserEntity user = new UserEntity();
-        user.setUsername("alice");
-        user.setEmail("alice@example.com");
-        user.setPassword("hashed");
+        user.setUsername("yassine");
+        user.setEmail("yassine@example.com");
+        user.setPassword("hashed_password");
         user.setPortfolio(portfolio);
 
         em.persistAndFlush(user);
@@ -43,7 +43,7 @@ class InvestmentRepositoryTest {
         em.clear();
     }
 
-    private InvestmentEntity persistInvestment(InvestmentStatus status, BigDecimal investedAmount) {
+    private void persistInvestment(InvestmentStatus status, BigDecimal investedAmount) {
         PortfolioEntity portfolio = em.find(PortfolioEntity.class, portfolioId);
         InvestmentEntity inv = InvestmentEntity.builder()
                 .name("Test Investment")
@@ -54,10 +54,10 @@ class InvestmentRepositoryTest {
                 .quantity(1)
                 .portfolio(portfolio)
                 .build();
-        return em.persistAndFlush(inv);
+        em.persistAndFlush(inv);
     }
 
-    // ── findByStatus ──────────────────────────────────────────────────────────
+    //  findByStatus 
 
     @Test
     void findByStatus_returnsMatchingInvestments() {
@@ -72,6 +72,8 @@ class InvestmentRepositoryTest {
         assertThat(results).allMatch(inv -> inv.getStatus() == InvestmentStatus.PENDING);
     }
 
+
+    // findByStatus should return an empty list when no investments match the given status. We will test this by persisting investments with a different status and then querying for a status that does not exist in the database.
     @Test
     void findByStatus_returnsEmpty_whenNoneMatch() {
         persistInvestment(InvestmentStatus.PENDING, new BigDecimal("1000.00"));
@@ -82,13 +84,14 @@ class InvestmentRepositoryTest {
         assertThat(results).isEmpty();
     }
 
-    // ── sumDeployedAmountByPortfolioId ────────────────────────────────────────
+    //  sumDeployedAmountByPortfolioId 
 
     @Test
     void sumDeployedAmount_sumsActiveAndPending_excludingExitedAndWrittenOff() {
         persistInvestment(InvestmentStatus.ACTIVE, new BigDecimal("1000.00"));
         persistInvestment(InvestmentStatus.PENDING, new BigDecimal("500.00"));
         persistInvestment(InvestmentStatus.EXITED, new BigDecimal("2000.00"));
+        persistInvestment(InvestmentStatus.WRITTEN_OFF, new BigDecimal("500.00"));
         em.clear();
 
         Set<InvestmentStatus> excluded = Set.of(InvestmentStatus.EXITED, InvestmentStatus.WRITTEN_OFF);

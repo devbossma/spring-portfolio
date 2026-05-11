@@ -37,9 +37,9 @@ class FundServiceTest {
     @BeforeEach
     void setUp() {
         user = new UserEntity();
-        user.setUsername("alice");
-        user.setEmail("alice@example.com");
-        user.setPassword("hashed");
+        user.setUsername("Yassine");
+        user.setEmail("yassine@example.com");
+        user.setPassword("hashed_password");
     }
 
     private FundEntity fundWith(BigDecimal totalCapital, BigDecimal deployedCapital) {
@@ -55,7 +55,7 @@ class FundServiceTest {
         return captor.getValue();
     }
 
-    // ── recordInitialBalance ──────────────────────────────────────────────────
+    //  recordInitialBalance 
 
     @Test
     void recordInitialBalance_setsFundCapitalTo10M_andRecordsDepositTransaction() {
@@ -72,7 +72,7 @@ class FundServiceTest {
         assertThat(tx.getNotes()).isEqualTo("Initial Balance");
     }
 
-    // ── addToFund ─────────────────────────────────────────────────────────────
+    //  addToFund
 
     @Test
     void addToFund_increasesTotalCapital_andRecordsDepositTransaction() {
@@ -89,7 +89,7 @@ class FundServiceTest {
         assertThat(tx.getAmount()).isEqualByComparingTo("500.00");
     }
 
-    // ── withdraw ──────────────────────────────────────────────────────────────
+    //  withdraw 
 
     @Test
     void withdraw_decreasesTotalCapital_andRecordsWithdrawalTransaction() {
@@ -117,7 +117,7 @@ class FundServiceTest {
                 .hasMessageContaining("dry powder");
     }
 
-    // ── recordFundWriteOff ────────────────────────────────────────────────────
+    //  recordFundWriteOff 
 
     @Test
     void recordFundWriteOff_decreasesTotalCapital_andRecordsWriteOffTransaction() {
@@ -134,7 +134,7 @@ class FundServiceTest {
         assertThat(tx.getNotes()).isEqualTo("Investment failed");
     }
 
-    // ── recordFundDeposit ─────────────────────────────────────────────────────
+    //  recordFundDeposit
 
     @Test
     void recordFundDeposit_increasesTotalCapital_andRecordsDepositTransaction() {

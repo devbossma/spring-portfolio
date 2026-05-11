@@ -37,7 +37,7 @@ class PortfolioServiceTest {
     @InjectMocks
     private PortfolioService portfolioService;
 
-    // ── getPortfolioByUser ────────────────────────────────────────────────────
+    // getPortfolioByUser 
 
     @Test
     void getPortfolioByUser_returnsPortfolio_whenFound() {
@@ -69,7 +69,7 @@ class PortfolioServiceTest {
                 .hasMessageContaining("Portfolio not found");
     }
 
-    // ── getPortfolioById ──────────────────────────────────────────────────────
+    // getPortfolioById
 
     @Test
     void getPortfolioById_returnsPortfolio_whenFound() {
@@ -92,7 +92,7 @@ class PortfolioServiceTest {
                 .hasMessageContaining("Portfolio not found");
     }
 
-    // ── getInvestmentsByPortfolio ─────────────────────────────────────────────
+    // getInvestmentsByPortfolio
 
     @Test
     void getInvestmentsByPortfolio_returnsList() {
@@ -105,7 +105,7 @@ class PortfolioServiceTest {
         assertThat(result).containsExactly(inv);
     }
 
-    // ── getFundByPortfolio ────────────────────────────────────────────────────
+    // getFundByPortfolio 
 
     @Test
     void getFundByPortfolio_returnsFund() {
@@ -118,7 +118,7 @@ class PortfolioServiceTest {
         assertThat(result).isSameAs(fund);
     }
 
-    // ── updatePortfolioTotals ─────────────────────────────────────────────────
+    // updatePortfolioTotals
 
     @Test
     void updatePortfolioTotals_setsCorrectTotals_andSavesBothEntities() {

@@ -21,7 +21,7 @@ class NotificationServiceTest {
     @InjectMocks
     private NotificationService notificationService;
 
-    // ── sendNotification ──────────────────────────────────────────────────────
+    //  sendNotification 
 
     @Test
     void sendNotification_persistsNotificationWithCorrectFields() {
@@ -40,7 +40,7 @@ class NotificationServiceTest {
         assertThat(saved.isRead()).isFalse();
     }
 
-    // ── subscribe ─────────────────────────────────────────────────────────────
+    //  subscribe 
 
     @Test
     void subscribe_returnsNonNullEmitter() {

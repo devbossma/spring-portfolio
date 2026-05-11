@@ -16,7 +16,7 @@ class InvestmentEntityTest {
         return inv;
     }
 
-    // ── getProfitLoss ─────────────────────────────────────────────────────────
+    //  getProfitLoss ─
 
     @Test
     void getProfitLoss_returnsPositive_whenCurrentValueExceedsPurchasePrice() {
@@ -39,7 +39,7 @@ class InvestmentEntityTest {
         assertThat(inv.getProfitLoss()).isEqualByComparingTo("0");
     }
 
-    // ── getCurrentTotalValue ──────────────────────────────────────────────────
+    //  getCurrentTotalValue 
 
     @Test
     void getCurrentTotalValue_returnsCurrentValueTimesQuantity() {
@@ -56,7 +56,7 @@ class InvestmentEntityTest {
         assertThat(inv.getCurrentTotalValue()).isEqualByComparingTo("0");
     }
 
-    // ── getProfitLossPercentage ───────────────────────────────────────────────
+    //  getProfitLossPercentage ─
 
     @Test
     void getProfitLossPercentage_returnsCorrectPercentage_forGain() {
@@ -79,7 +79,7 @@ class InvestmentEntityTest {
         assertThat(inv.getProfitLossPercentage()).isEqualByComparingTo("0");
     }
 
-    // ── status helpers ────────────────────────────────────────────────────────
+    //  status helpers 
 
     @Test
     void isPending_returnsTrue_andOthersReturnFalse_forNewInvestment() {

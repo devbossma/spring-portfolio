@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class FundTransactionEntityTest {
 
-    // ── validateWithdrawal ────────────────────────────────────────────────────
+    //  validateWithdrawal 
 
     @Test
     void validateWithdrawal_doesNotThrow_whenAmountIsWithinBalance() {
@@ -45,7 +45,7 @@ class FundTransactionEntityTest {
         assertThatNoException().isThrownBy(() -> tx.validateWithdrawal(new BigDecimal("1.00")));
     }
 
-    // ── setType ───────────────────────────────────────────────────────────────
+    //  setType
 
     @Test
     void setType_throwsIllegalArgument_whenTypeIsNull() {
@@ -56,7 +56,7 @@ class FundTransactionEntityTest {
                 .hasMessageContaining("null");
     }
 
-    // ── getTransactionCategory ────────────────────────────────────────────────
+    //  getTransactionCategory 
 
     @Test
     void getTransactionCategory_returnsFund() {

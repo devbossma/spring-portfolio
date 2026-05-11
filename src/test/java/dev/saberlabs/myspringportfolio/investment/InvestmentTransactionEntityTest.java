@@ -20,7 +20,7 @@ class InvestmentTransactionEntityTest {
                 .build();
     }
 
-    // ── validateSell ──────────────────────────────────────────────────────────
+    //  validateSell 
 
     @Test
     void validateSell_doesNotThrow_whenQuantityWithinLimit() {
@@ -47,7 +47,7 @@ class InvestmentTransactionEntityTest {
         assertThatCode(() -> tx.validateSell(5)).doesNotThrowAnyException();
     }
 
-    // ── getTotalValue ─────────────────────────────────────────────────────────
+    //  getTotalValue ─
 
     @Test
     void getTotalValue_returnsPricePerUnitTimesQuantity() {
@@ -68,7 +68,7 @@ class InvestmentTransactionEntityTest {
         assertThat(tx.getTotalValue()).isEqualByComparingTo("0");
     }
 
-    // ── setType ───────────────────────────────────────────────────────────────
+    //  setType ─
 
     @Test
     void setType_throwsIllegalArgument_whenNull() {
@@ -78,7 +78,7 @@ class InvestmentTransactionEntityTest {
                 .hasMessageContaining("cannot be null");
     }
 
-    // ── getTransactionCategory ────────────────────────────────────────────────
+    //  getTransactionCategory 
 
     @Test
     void getTransactionCategory_returnsInvestment() {

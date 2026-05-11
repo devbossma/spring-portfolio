@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PortfolioEntityTest {
 
-    // ── addInvestment ─────────────────────────────────────────────────────────
+    // Test Investment Entity back-reference management in PortfolioEntity
 
     @Test
     void addInvestment_addsToList_andSetsBackReference() {
@@ -40,7 +40,7 @@ class PortfolioEntityTest {
         assertThat(portfolio.getInvestments()).containsExactly(investment);
     }
 
-    // ── removeInvestment ──────────────────────────────────────────────────────
+    // Test removeInvestment method
 
     @Test
     void removeInvestment_removesFromList_andClearsBackReference() {

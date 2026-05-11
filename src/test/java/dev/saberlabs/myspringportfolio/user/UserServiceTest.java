@@ -26,15 +26,15 @@ class UserServiceTest {
     @Test
     void loadUserByUsername_returnsUserDetails_whenUserExists() {
         UserEntity user = new UserEntity();
-        user.setUsername("alice");
-        user.setEmail("alice@example.com");
+        user.setUsername("yassine");
+        user.setEmail("yassine@example.com");
         user.setPassword("hashed_password");
 
-        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("yassine")).thenReturn(Optional.of(user));
 
-        UserDetails result = userService.loadUserByUsername("alice");
+        UserDetails result = userService.loadUserByUsername("yassine");
 
-        assertThat(result.getUsername()).isEqualTo("alice");
+        assertThat(result.getUsername()).isEqualTo("yassine");
         assertThat(result.getPassword()).isEqualTo("hashed_password");
     }
 

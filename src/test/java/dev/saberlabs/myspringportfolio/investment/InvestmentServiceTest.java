@@ -43,9 +43,9 @@ class InvestmentServiceTest {
     @BeforeEach
     void setUp() {
         user = new UserEntity();
-        user.setUsername("alice");
-        user.setEmail("alice@example.com");
-        user.setPassword("hashed");
+        user.setUsername("Yassine");
+        user.setEmail("yassine@example.com");
+        user.setPassword("hashed_password");
     }
 
     private PortfolioEntity portfolioWithFund(BigDecimal totalCapital, BigDecimal deployedCapital) {
@@ -58,7 +58,7 @@ class InvestmentServiceTest {
         return portfolio;
     }
 
-    // ── addInvestment ─────────────────────────────────────────────────────────
+    //  addInvestment
 
     @Test
     void addInvestment_calculatesInvestedAmount_whenNotProvided() {
@@ -100,7 +100,7 @@ class InvestmentServiceTest {
                 .hasMessageContaining("Insufficient funds");
     }
 
-    // ── updateInvestmentCurrentValue ──────────────────────────────────────────
+    //  updateInvestmentCurrentValue 
 
     @Test
     void updateInvestmentCurrentValue_updatesValueAndRecalculatesTotals() {
@@ -119,7 +119,7 @@ class InvestmentServiceTest {
         verify(portfolioService).updatePortfolioTotals(portfolio);
     }
 
-    // ── exitInvestment ────────────────────────────────────────────────────────
+    //  exitInvestment 
 
     @Test
     void exitInvestment_marksExited_andRecordsSellTransactionAndFundDeposit() {
@@ -147,7 +147,7 @@ class InvestmentServiceTest {
         verify(portfolioService).updatePortfolioTotals(portfolio);
     }
 
-    // ── writeOffInvestment ────────────────────────────────────────────────────
+    //  writeOffInvestment 
 
     @Test
     void writeOffInvestment_marksWrittenOff_andRecordsFundWriteOff() {
@@ -188,7 +188,7 @@ class InvestmentServiceTest {
                 .hasMessageContaining("Only active investments");
     }
 
-    // ── getInvestmentById ─────────────────────────────────────────────────────
+    //  getInvestmentById ─
 
     @Test
     void getInvestmentById_returnsInvestment_whenFound() {
@@ -208,7 +208,7 @@ class InvestmentServiceTest {
                 .isInstanceOf(NoSuchElementException.class);
     }
 
-    // ── updateInvestment ──────────────────────────────────────────────────────
+    //  updateInvestment 
 
     @Test
     void updateInvestment_savesAndUpdatesTotals() {
@@ -223,7 +223,7 @@ class InvestmentServiceTest {
         verify(portfolioService).updatePortfolioTotals(portfolio);
     }
 
-    // ── deleteInvestment ──────────────────────────────────────────────────────
+    //  deleteInvestment 
 
     @Test
     void deleteInvestment_deletesTransactions_whenPending() {

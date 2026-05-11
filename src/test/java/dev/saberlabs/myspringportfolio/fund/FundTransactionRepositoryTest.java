@@ -35,9 +35,9 @@ class FundTransactionRepositoryTest {
         portfolio.setFund(fund);
 
         UserEntity user = new UserEntity();
-        user.setUsername("alice");
-        user.setEmail("alice@example.com");
-        user.setPassword("hashed");
+        user.setUsername("Yassine");
+        user.setEmail("yassine@example.com");
+        user.setPassword("hashed_password");
         user.setPortfolio(portfolio);
 
         em.persistAndFlush(user);
@@ -60,7 +60,7 @@ class FundTransactionRepositoryTest {
                 .build());
     }
 
-    // ── findByFundIdOrderByCreatedAtDesc ──────────────────────────────────────
+    //  findByFundIdOrderByCreatedAtDesc 
 
     @Test
     void findByFundId_returnsAllTransactionsForFund() {
@@ -83,7 +83,7 @@ class FundTransactionRepositoryTest {
         assertThat(results).isEmpty();
     }
 
-    // ── findTop3ByFundIdOrderByCreatedAtDesc ──────────────────────────────────
+    //  findTop3ByFundIdOrderByCreatedAtDesc 
 
     @Test
     void findTop3ByFundId_returnsAtMostThree_whenMoreThanThreeExist() {

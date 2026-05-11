@@ -73,7 +73,7 @@ class InvestmentTransactionRepositoryTest {
         return tx.getId();
     }
 
-    // ── findByUserIdOrderByCreatedAtDesc ──────────────────────────────────────
+    //  findByUserIdOrderByCreatedAtDesc 
 
     @Test
     void findByUserId_returnsAllTransactionsForUser() {
@@ -98,7 +98,7 @@ class InvestmentTransactionRepositoryTest {
         assertThat(results).isEmpty();
     }
 
-    // ── deleteByInvestment ────────────────────────────────────────────────────
+    //  deleteByInvestment 
 
     @Test
     void deleteByInvestment_removesLinkedTransactions() {
@@ -116,7 +116,7 @@ class InvestmentTransactionRepositoryTest {
         assertThat(remaining).isEmpty();
     }
 
-    // ── detachFromInvestment ──────────────────────────────────────────────────
+    //  detachFromInvestment 
 
     @Test
     void detachFromInvestment_nullsInvestmentFK_butTransactionSurvives() {

@@ -23,14 +23,14 @@ class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // Mirror the exact construction pattern used by AuthService.registerUser()
+        // Mirroring the exact construction pattern used by AuthService.registerUser()
         FundEntity fund = new FundEntity();
         PortfolioEntity portfolio = new PortfolioEntity();
         portfolio.setFund(fund);
 
         UserEntity user = new UserEntity();
-        user.setUsername("alice");
-        user.setEmail("alice@example.com");
+        user.setUsername("yassine");
+        user.setEmail("yassine@example.com");
         user.setPassword("hashed_password");
         user.setPortfolio(portfolio);
 
@@ -39,16 +39,20 @@ class UserRepositoryTest {
         em.clear();
     }
 
-    // ── findByUsername ────────────────────────────────────────────────────────
 
+    // testing findByUsername method is straightforward since it should return an Optional<UserEntity> based on the username.
+    // We will test both the case where the username exists and where it does not exist.
+
+    // findByUsername
     @Test
     void findByUsername_returnsUser_whenUsernameExists() {
-        Optional<UserEntity> result = userRepository.findByUsername("alice");
+        Optional<UserEntity> result = userRepository.findByUsername("yassine");
 
         assertThat(result).isPresent();
-        assertThat(result.get().getUsername()).isEqualTo("alice");
+        assertThat(result.get().getUsername()).isEqualTo("yassine");
     }
 
+    // findByUsername should return an empty Optional when the username is not found in the database. We will test this by querying for a username that we know does not exist.
     @Test
     void findByUsername_returnsEmpty_whenUsernameNotFound() {
         Optional<UserEntity> result = userRepository.findByUsername("nobody");
@@ -56,14 +60,14 @@ class UserRepositoryTest {
         assertThat(result).isEmpty();
     }
 
-    // ── findByEmail ───────────────────────────────────────────────────────────
+    // findByEmail
 
     @Test
     void findByEmail_returnsUser_whenEmailExists() {
-        Optional<UserEntity> result = userRepository.findByEmail("alice@example.com");
+        Optional<UserEntity> result = userRepository.findByEmail("yassine@example.com");
 
         assertThat(result).isPresent();
-        assertThat(result.get().getEmail()).isEqualTo("alice@example.com");
+        assertThat(result.get().getEmail()).isEqualTo("yassine@example.com");
     }
 
     @Test
@@ -73,22 +77,22 @@ class UserRepositoryTest {
         assertThat(result).isEmpty();
     }
 
-    // ── findByUsernameOrEmail ─────────────────────────────────────────────────
+    // findByUsernameOrEmail
 
     @Test
     void findByUsernameOrEmail_returnsUser_whenMatchedByUsername() {
-        Optional<UserEntity> result = userRepository.findByUsernameOrEmail("alice", "other@example.com");
+        Optional<UserEntity> result = userRepository.findByUsernameOrEmail("yassine", "other@example.com");
 
         assertThat(result).isPresent();
-        assertThat(result.get().getUsername()).isEqualTo("alice");
+        assertThat(result.get().getUsername()).isEqualTo("yassine");
     }
 
     @Test
     void findByUsernameOrEmail_returnsUser_whenMatchedByEmail() {
-        Optional<UserEntity> result = userRepository.findByUsernameOrEmail("other", "alice@example.com");
+        Optional<UserEntity> result = userRepository.findByUsernameOrEmail("other", "yassine@example.com");
 
         assertThat(result).isPresent();
-        assertThat(result.get().getEmail()).isEqualTo("alice@example.com");
+        assertThat(result.get().getEmail()).isEqualTo("yassine@example.com");
     }
 
     @Test
