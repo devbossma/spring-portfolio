@@ -15,6 +15,31 @@ Key features implemented:
 - **Sort & Filter** — investments can be sorted by dollar amount (ascending/descending) or alphabetically, executed client-side in JavaScript without a page reload
 - **2-minute notification (Bonus)** — after a new investment is created, a Server-Sent Events (SSE) push notification is delivered to the browser exactly 2 minutes later using a Spring scheduled task
 
+## Testing
+
+The project has **89 unit tests** across all core packages, organised into three layers:
+
+- **Entity tests** — pure JUnit, no Spring context; verify computed properties, status helpers, and validation logic directly on domain objects
+- **Repository tests** — `@DataJpaTest` with an in-memory H2 database; verify JPQL queries, `@Modifying` bulk updates/deletes, and Spring Data derived finders against a real schema
+- **Service tests** — Mockito; verify business logic, dependency interactions, and exception paths without touching the database
+
+| Package | Tests | What is covered |
+|---|---|---|
+| `user` | 13 | `getAuthorities`, default flags, `findByUsername/Email`, `loadUserByUsername` |
+| `fund` | 14 | `getDryPowder`, `validateWithdrawal`, fund transaction queries, all fund service operations |
+| `portfolio` | 13 | `addInvestment`/`removeInvestment` bidirectional sync, portfolio service lookups and `updatePortfolioTotals` |
+| `investment` | 40 | computed P&L/percentage/value, status helpers, `validateSell`, repository queries (`findByStatus`, `sumDeployedAmountByPortfolioId`), `@Modifying` delete/detach, full service coverage (add, exit, write-off, delete by status) |
+| `auth` | 3 | registration happy path (encoded password, portfolio+fund cascade, initial balance), duplicate user, password mismatch |
+| `notification` | 2 | notification persistence field correctness, SSE emitter registration |
+
+**Run the test suite:**
+
+```bash
+./mvnw test
+```
+
+> `MySpringPortfolioApplicationTests` (full Spring context load) requires a running PostgreSQL instance and is excluded from the count above.
+
 ## Installation
 
 **Prerequisites:** Docker and Docker Compose installed on your machine.
